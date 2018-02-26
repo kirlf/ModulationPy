@@ -86,3 +86,45 @@ def modulate(x, modulation_order, code_book, binary_input = True):
 	else:
 		print "Wrong data type for binary_input (should be True or False). Now input_type = "+str(input_type)+""		
 	return np.array(modulated)
+
+
+def PSKDemodulator(modulation_order, phase_shift = np.pi/4, symbol_mapping = 'Gray'):
+	zeros = []
+	ones = []
+	for c in range(int(np.log2(modulation_order))):
+		zeros.append([])
+		ones.append([])
+	codebook = PSKmodulator(modulation_order, phase_shift, symbol_mapping)
+	s = [0+i for i in range(modulation_order)]
+	b = []
+	for i in s:
+		a = bin(i)[2:]
+		if len(a) < np.log2(modulation_order):
+			a = int((np.log2(modulation_order) - len(a)))*'0'+a
+		b.append(a)
+	for idx, n in enumerate(b):
+		for ind, m in enumerate(n):
+			if m == '0':
+				zeros[ind].append(codebook[idx])
+			else:
+				ones[ind].append(codebook[idx])
+	return zeros, ones
+		
+
+	 
+
+
+
+def ExactLLR(x, zeros, ones):
+	LLR = []
+	for c in range(len(x)):
+		for d in range(len(zeros)):
+			num = 0
+			for z in zeros[d]:
+				num =  num + ( np.exp ( -  ( ( ( np.real(x[ len(zeros)*c]) - np.real(z) )**2 ) + ( (np.imag(x[ len(zeros)*c ]) - np.imag(z))**2 ) ) ) )
+			denum = 0
+			for o in ones[d]:
+				denum =  denum + ( np.exp ( -  ( ( ( np.real(x[ len(zeros)*c ]) - np.real(o) )**2 ) + ( (np.imag(x[ len(zeros)*c ]) - np.imag(o))**2 ) ) ) )
+			llr = np.log( num / denum )
+			LLR.append(llr) 
+	return LLR
