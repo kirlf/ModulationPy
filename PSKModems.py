@@ -7,6 +7,15 @@ def fast_qpsk_mod(s):
 	m = (s[::2]*(-2)+1)*np.cos(np.pi/4)+1j*(s[1::2]*(-2)+1)*np.sin(np.pi/4)
 	return m
 
+def fast_qpsk_demod(x):
+	LLR = []
+	for inx in x:
+		re =  (-( np.real(inx) - np.cos(np.pi/4))**2 ) - ( -(np.real(inx) + np.cos(np.pi/4))**2 )
+		im =  (-( np.imag(inx) - np.sin(np.pi/4))**2 ) - ( -(np.imag(inx) + np.sin(np.pi/4))**2 )
+		LLR.append(float(re))
+		LLR.append(float(im))
+	return LLR
+
 
 def GRAYencoder(x):
 	for idx in range(len(x)):
