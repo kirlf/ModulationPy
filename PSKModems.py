@@ -108,6 +108,8 @@ def PSKDemodulator(modulation_order, phase_shift = np.pi/4, symbol_mapping = 'Gr
 	b = []
 	for i in s:
 		a = bin(i)[2:]
+		if np.log(modulation_order)%2 == 0:
+			a = a[::-1]
 		if len(a) < np.log2(modulation_order):
 			a = int((np.log2(modulation_order) - len(a)))*'0'+a
 		b.append(a)
@@ -126,10 +128,28 @@ def ExactLLR(x, zeros, ones):
 		for d in range(len(zeros)):
 			num = 0
 			for z in zeros[d]:
-				num =  num + ( np.exp ( -  ( ( ( np.real(x[ len(zeros)*c]) - np.real(z) )**2 ) + ( (np.imag(x[ len(zeros)*c ]) - np.imag(z))**2 ) ) ) )
+				num =  num + ( np.exp ( -  ( ( ( np.real(x[c]) - np.real(z) )**2 ) + ( (np.imag(x[ c ]) - np.imag(z))**2 ) ) ) )
 			denum = 0
 			for o in ones[d]:
-				denum =  denum + ( np.exp ( -  ( ( ( np.real(x[ len(zeros)*c ]) - np.real(o) )**2 ) + ( (np.imag(x[ len(zeros)*c ]) - np.imag(o))**2 ) ) ) )
+				denum =  denum + ( np.exp ( -  ( ( ( np.real(x[c]) - np.real(o) )**2 ) + ( (np.imag(x[c]) - np.imag(o))**2 ) ) ) )
 			llr = np.log( num / denum )
 			LLR.append(llr) 
+	return LLR
+
+
+
+def ApproxLLR(x, zeros, ones):
+	LLR = []
+	for c in range(len(x)):
+		for d in range(len(zeros)):
+			num = []
+			for z in zeros[d]:
+				num.append( ( ( np.real(x[c]) - np.real(z) )**2 ) + ( (np.imag(x[c]) - np.imag(z))**2 ) )
+			#print num
+			denum = []
+			for o in ones[d]:
+				denum.append( ( ( np.real(x[c]) - np.real(o) )**2 ) + ( (np.imag(x[c]) - np.imag(o))**2 ) )
+			#print denum
+			llr = min(num) - min(denum)
+			LLR.append(-llr) 
 	return LLR
