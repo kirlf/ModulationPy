@@ -21,9 +21,9 @@ def GRAYencoder(x):
 
 def QPSKmodulator(phase_shift = np.pi/4, input_type = 'Gray'):
 	s = [0+i for i in range(4)]
+	m = list(np.exp(1j*phase_shift + 1j*2*np.pi*np.array(s)/4))
 	dict_out = {}
 	if input_type == 'Binary':
-		m = list(np.exp(1j*phase_shift + 1j*2*np.pi*np.array(s)/4))
 		for x, y in zip(s, m):
 			dict_out[x] = y
 	elif input_type == 'Gray':
@@ -33,8 +33,7 @@ def QPSKmodulator(phase_shift = np.pi/4, input_type = 'Gray'):
 			if len(symbol) < np.log2(4):
 				symbol = '0'+symbol
 			s2.append( int( symbol[0] + str( int( symbol[0] ) ^ int( symbol[1] ) ), 2 ) )
-		m = list(np.exp(1j*phase_shift + 1j*2*np.pi*np.array(s2)/4))
-		for x, y in zip(s, m):
+		for x, y in zip(s2, m):
 			dict_out[x] = y
 	else:
 		print "Wrong iput data type (should be 'Gray' or 'Binary'). Now input_type = "+input_type+""
