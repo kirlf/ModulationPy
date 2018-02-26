@@ -110,11 +110,7 @@ def PSKDemodulator(modulation_order, phase_shift = np.pi/4, symbol_mapping = 'Gr
 				ones[ind].append(codebook[idx])
 	return zeros, ones
 		
-
-	 
-
-
-
+	
 def ExactLLR(x, zeros, ones):
 	LLR = []
 	for c in range(len(x)):
