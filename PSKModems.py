@@ -105,16 +105,23 @@ def ExactLLR(x, zeros, ones):
 
 def ApproxLLR(x, zeros, ones):
 	LLR = []
-	for c in range(len(x)):
-		for d in range(len(zeros)):
-			num = []
-			for z in zeros[d]:
-				num.append( ( ( np.real(x[c]) - np.real(z) )**2 ) + ( (np.imag(x[c]) - np.imag(z))**2 ) )
-			#print num
-			denum = []
-			for o in ones[d]:
-				denum.append( ( ( np.real(x[c]) - np.real(o) )**2 ) + ( (np.imag(x[c]) - np.imag(o))**2 ) )
-			#print denum
-			llr = min(num) - min(denum)
-			LLR.append(-llr) 
-	return LLR
+	for d in range(len(zeros)):
+		num = []
+		for z in zeros[d]:
+			num.append( list( ( ( np.real(x) - np.real(z) )**2 ) + ( (np.imag(x) - np.imag(z))**2 ) ) )
+		denum = []
+		for o in ones[d]:
+			denum.append( list( ( ( np.real(x) - np.real(o) )**2 ) + ( (np.imag(x) - np.imag(o))**2 ) ) )
+		num_post = num[0]
+		for n in num:
+			num_post = np.minimum(num_post, n)
+		denum_post = denum[0]
+		for m in denum:
+			denum_post = np.minimum(denum_post, m)
+		llr = np.transpose(np.array(num_post)) - np.transpose(np.array(denum_post))
+		LLR.append(-llr)
+	result = np.zeros((len(x)*len(zeros))) 
+	for i, n in enumerate(LLR):
+		result[0+i::len(zeros)] = n
+	return result
+
