@@ -16,25 +16,58 @@ def GRAYencoder(x):
 	return y
 
 
-def PSKmodulator(modulation_order, phase_shift = np.pi/4, input_type = 'Gray'):
+def PSKmodulator(modulation_order, phase_shift = np.pi/4, symbol_mapping = 'Gray', input_type = 'Binary'):
 	s = [0+i for i in range(modulation_order)]
 	m = list(np.exp(1j*phase_shift + 1j*2*np.pi*np.array(s)/modulation_order))
 	dict_out = {}
-	if input_type == 'Binary':
-		for x, y in zip(s, m):
-			dict_out[x] = y
-	elif input_type == 'Gray':
-		s2 = []
-		for i in s:
-			symbol = bin(i)[2:]
-			if len(symbol) < np.log2(modulation_order):
-				symbol = int( (np.log2(modulation_order) - len(symbol)) )*'0'+symbol
-			s2.append( int(GRAYencoder(symbol), 2 ) )
-		for x, y in zip(s2, m):
-			dict_out[x] = y
+	if input_type == 'Decimal':
+		if symbol_mapping == 'Binary':
+			for x, y in zip(s, m):
+				dict_out[x] = y
+		elif symbol_mapping == 'Gray':
+			s2 = []
+			for i in s:
+				symbol = bin(i)[2:]
+				if len(symbol) < np.log2(modulation_order):
+					symbol = int( (np.log2(modulation_order) - len(symbol)) )*'0'+symbol
+				s2.append( int(GRAYencoder(symbol), 2 ) )
+			for x, y in zip(s2, m):
+				dict_out[x] = y
+		else:
+			print("Wrong input data type (should be 'Gray' or 'Binary'). Now input_type = " + str(input_type))
+			sys.exit(0)
 	else:
-		print "Wrong iput data type (should be 'Gray' or 'Binary'). Now input_type = "+str(input_type)+""
-		sys.exit(0)
+		if symbol_mapping == 'Binary':
+			b = []
+			for i in s:
+				a = bin(i)[2:]
+				if len(a) < np.log2(modulation_order):
+					a = int((np.log2(modulation_order) - len(a)))*'0'+a
+				if np.log2(modulation_order)%2 == 0:
+					a = a[::-1]
+				b.append(a)
+			for x, y in zip(b, m):
+				dict_out[x] = y
+		elif symbol_mapping == 'Gray':
+			s2 = []
+			for i in s:
+				symbol = bin(i)[2:]
+				if len(symbol) < np.log2(modulation_order):
+					symbol = int( (np.log2(modulation_order) - len(symbol)) )*'0'+symbol
+				s2.append( int(GRAYencoder(symbol), 2 ) )
+			b = []
+			for i in s2:
+				a = bin(i)[2:]
+				if len(a) < np.log2(modulation_order):
+					a = int((np.log2(modulation_order) - len(a)))*'0'+a
+				if np.log2(modulation_order)%2 == 0:
+					a = a[::-1]
+				b.append(a)
+			for x, y in zip(b, m):
+				dict_out[x] = y
+		else:
+			print("Wrong input data type (should be 'Gray' or 'Binary'). Now input_type = " + str(input_type))
+			sys.exit(0)		
 	return dict_out
 
 
@@ -43,22 +76,19 @@ def modulate(x, modulation_order, code_book, binary_input = True):
 	modulated = []
 	if binary_input == True: 
 		m = []
-		s = ''
 		n = int(np.log2(modulation_order))
 		length = len(x)
 		for c in range(int(length/n)):
+			s = ''
 			y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
 			for d in y:
 				s = s+str(int(d))
-			m.append(int(s[::-1],2))
-			s = ''
-		for a in m:
-			modulated.append(code_book[a])
+			modulated.append(code_book[s])
 	elif binary_input == False:
 		for a in x:
 			modulated.append(code_book[x])
 	else:
-		print "Wrong data type for binary_input (should be True or False). Now input_type = "+str(input_type)+""		
+		print("Wrong data type for binary_input (should be True or False). Now input_type = " + str(input_type))		
 	return np.array(modulated)
 
 
@@ -68,12 +98,12 @@ def PSKDemodulator(modulation_order, phase_shift = np.pi/4, symbol_mapping = 'Gr
 	for c in range(int(np.log2(modulation_order))):
 		zeros.append([])
 		ones.append([])
-	codebook = PSKmodulator(modulation_order, phase_shift, symbol_mapping)
+	codebook = PSKmodulator(modulation_order, phase_shift, symbol_mapping, 'Decimal')
 	s = [0+i for i in range(modulation_order)]
 	b = []
 	for i in s:
 		a = bin(i)[2:]
-		if np.log(modulation_order)%2 == 0:
+		if np.log2(modulation_order)%2 == 0:
 			a = a[::-1]
 		if len(a) < np.log2(modulation_order):
 			a = int((np.log2(modulation_order) - len(a)))*'0'+a
