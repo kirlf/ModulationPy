@@ -142,13 +142,9 @@ def ApproxLLR(x, zeros, ones):
 		denum = []
 		for o in ones[d]:
 			denum.append( list( ( ( np.real(x) - np.real(o) )**2 ) + ( (np.imag(x) - np.imag(o))**2 ) ) )
-		num_post = num[0]
-		for n in num:
-			num_post = np.minimum(num_post, n)
-		denum_post = denum[0]
-		for m in denum:
-			denum_post = np.minimum(denum_post, m)
-		llr = np.transpose(np.array(num_post)) - np.transpose(np.array(denum_post))
+		num_post = np.amin(num, axis=0, keepdims=True)
+		denum_post = np.amin(denum, axis=0, keepdims=True)
+		llr = np.transpose(num_post[0]) - np.transpose(denum_post[0])
 		LLR.append(-llr)
 	result = np.zeros((len(x)*len(zeros))) 
 	for i, n in enumerate(LLR):
