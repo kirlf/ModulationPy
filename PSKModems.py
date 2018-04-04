@@ -103,10 +103,10 @@ def PSKDemodulator(modulation_order, phase_shift = np.pi/4, symbol_mapping = 'Gr
 	b = []
 	for i in s:
 		a = bin(i)[2:]
-		if np.log2(modulation_order)%2 == 0:
-			a = a[::-1]
 		if len(a) < np.log2(modulation_order):
 			a = int((np.log2(modulation_order) - len(a)))*'0'+a
+		if np.log2(modulation_order)%2 == 0:
+			a = a[::-1]
 		b.append(a)
 	for idx, n in enumerate(b):
 		for ind, m in enumerate(n):
