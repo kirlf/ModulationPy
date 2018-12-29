@@ -109,11 +109,11 @@ class Modem:
             num = []
             for z in zeros[d]:
                 num.append( list ( np.exp ( -1* ( ( ( np.real(x) - np.real(z) )**2 )\
-                	+ ( (np.imag(x) - np.imag(z))**2 ) ) / NoiseVar ) ) )
+                                                                 + ( (np.imag(x) - np.imag(z))**2 ) ) / NoiseVar ) ) )
             denum = []
             for o in ones[d]:
                 denum.append( list ( np.exp ( -1*  ( ( ( np.real(x) - np.real(o) )**2 )\
-                 + ( (np.imag(x) - np.imag(o) )**2 ) ) / NoiseVar ) ) )
+                                                                + ( (np.imag(x) - np.imag(o) )**2 ) ) / NoiseVar ) ) )
             
             num_post = np.sum(num, axis=0, keepdims=True)
             denum_post = np.sum(denum, axis=0, keepdims=True)
@@ -148,10 +148,16 @@ class Modem:
             elif abs(x) > 1e-9 and abs(y) < 1e-9:
                 v = 'center'     
             plt.annotate(i,(x+xadd,y+yadd), ha=h, va=v)
+        if self.M == 2 and self.Type == 'PSK':
+            M = 'B'
+        elif self.M == 4 and self.Type == 'PSK':
+            M = 'Q'   
         plt.grid()
         plt.axvline(linewidth=1.0, color='black')
         plt.axhline(linewidth=1.0, color='black')
         plt.axis([-1.5,1.5,-1.5,1.5])
+        plt.title(str(M)+'-'+str(self.Type)+', phase rotation: '+str(round(self.phi, 5))+\
+                          ', Mapping: '+str(self.SymMap)+', Input: '+str(self.InType))
         plt.show()
 
 
@@ -160,6 +166,7 @@ class PSKModulator(Modem):
         super().__init__(M, phi, SymMap, InType)
         self.s = [i for i in range(self.M)]
         self.m = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.s)/self.M))
+        self.Type = 'PSK'
 
     
     def __fast_qpsk_mod(self, s):
@@ -242,4 +249,4 @@ class PSKDemodulator(Modem):
                 print("Wrong Decision Method (should be Approximate LLR, Exact LLR or Hard). Now Decision Method = "\
                                       + str(DecisionMethod))
                 sys.exit(0)                            
-        return result  
+        return result 
