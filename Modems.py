@@ -2,18 +2,20 @@ import numpy as np
 import sys
 from time import time
 import random
+import matplotlib.pyplot as plt
+
 
 class Modem:
     def __init__(self, M, phi, SymMap='Gray', InType='Binary'):
         self.M = M
         self.phi = phi
         if InType != 'Decimal' and InType != 'Binary':     
-            print("Wrong input data type (should be 'Decimal' or 'Binary').\n Now InType = " \
-                  + str(InType))
+            print("Wrong input data type (should be 'Decimal' or 'Binary').\n Now InType = "\
+                               + str(InType))
             sys.exit(0)    
         if SymMap != 'Gray' and SymMap != 'Binary':     
-            print("Wrong mapping type (should be 'Gray' or 'Binary').\n Now SymMap = " \
-                  + str(SymMap))
+            print("Wrong mapping type (should be 'Gray' or 'Binary').\n Now SymMap = "\
+                               + str(SymMap))
             sys.exit(0)
         self.SymMap = SymMap
         self.InType = InType
@@ -78,8 +80,8 @@ class Modem:
                 s2 = self.__gray_encoding(s)
                 dict_out = self.__dict_make(s2, m)
         else:
-            print("Wrong mode (should be 'Modulator' or 'Demodulator').\n Now mode = " \
-                  + str(mode))
+            print("Wrong mode (should be 'Modulator' or 'Demodulator').\n Now mode = "\
+                               + str(mode))
             sys.exit(0)
         return dict_out
     
@@ -107,11 +109,11 @@ class Modem:
             num = []
             for z in zeros[d]:
                 num.append( list ( np.exp ( -1* ( ( ( np.real(x) - np.real(z) )**2 )\
-                                                 + ( (np.imag(x) - np.imag(z))**2 ) ) / NoiseVar ) ) )
+                	+ ( (np.imag(x) - np.imag(z))**2 ) ) / NoiseVar ) ) )
             denum = []
             for o in ones[d]:
                 denum.append( list ( np.exp ( -1*  ( ( ( np.real(x) - np.real(o) )**2 )\
-                                                + ( (np.imag(x) - np.imag(o) )**2 ) ) / NoiseVar ) ) )
+                 + ( (np.imag(x) - np.imag(o) )**2 ) ) / NoiseVar ) ) )
             
             num_post = np.sum(num, axis=0, keepdims=True)
             denum_post = np.sum(denum, axis=0, keepdims=True)
@@ -121,10 +123,43 @@ class Modem:
         for i, n in enumerate(LLR):
             result[i::len(zeros)] = n
         return result
-        
+    
+    def plot_const(self):
+        const = self.create_constellation(self.s, self.m)
+        fig = plt.figure(figsize=(6, 4), dpi=150)
+        for i in list(const):
+            x = np.real(const[i])
+            y = np.imag(const[i])
+            plt.plot(x, y, 'o', color='green')
+            if x < 0:
+                h = 'right'
+                xadd = -.03
+            else:
+                h = 'left'
+                xadd = .03
+            if y < 0:
+                v = 'top'
+                yadd = -.03
+            else:
+                v = 'bottom'
+                yadd = .03
+            if (abs(x) < 1e-9 and abs(y) > 1e-9):
+                h = 'center'
+            elif abs(x) > 1e-9 and abs(y) < 1e-9:
+                v = 'center'     
+            plt.annotate(i,(x+xadd,y+yadd), ha=h, va=v)
+        plt.grid()
+        plt.axvline(linewidth=1.0, color='black')
+        plt.axhline(linewidth=1.0, color='black')
+        plt.axis([-1.5,1.5,-1.5,1.5])
+        plt.show()
+
+
 class PSKModulator(Modem):  
     def __init__(self, M, phi, SymMap='Gray', InType='Binary'):
         super().__init__(M, phi, SymMap, InType)
+        self.s = [i for i in range(self.M)]
+        self.m = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.s)/self.M))
 
     
     def __fast_qpsk_mod(self, s):
@@ -132,9 +167,7 @@ class PSKModulator(Modem):
         return m
     
     def init(self):
-        s = [i for i in range(self.M)]
-        m = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(s)/self.M))
-        dict_out = self.create_constellation(s, m)
+        dict_out = self.create_constellation(self.s, self.m)
         return dict_out
         
                                     
@@ -161,8 +194,9 @@ class PSKModulator(Modem):
                 for a in x:
                     modulated.append(code_book[x])
         return np.array(modulated)
-        
-class PSKDemodulator(PSKModulator):
+
+
+class PSKDemodulator(Modem):
     def __init__(self, M, phi, SymMap='Gray', InType='Binary'):
         super().__init__(M, phi, SymMap, InType)
         
@@ -206,7 +240,6 @@ class PSKDemodulator(PSKModulator):
                 result = (np.sign(self.ApproxLLR(x, zeros, ones)) + 1) / 2
             else:
                 print("Wrong Decision Method (should be Approximate LLR, Exact LLR or Hard). Now Decision Method = "\
-                      + str(DecisionMethod))
+                                      + str(DecisionMethod))
                 sys.exit(0)                            
         return result  
-        
