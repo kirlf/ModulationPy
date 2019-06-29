@@ -99,7 +99,7 @@ class Modem:
             LLR.append(-llr/NoiseVar)
         result = np.zeros((len(x)*len(zeros))) 
         for i, n in enumerate(LLR):
-            result[0+i::len(zeros)] = n
+            result[i::len(zeros)] = n
         return result
     
     def ExactLLR(self, x, zeros, ones, NoiseVar=1):
@@ -116,7 +116,7 @@ class Modem:
             
             num_post = np.sum(num, axis=0, keepdims=True)
             denum_post = np.sum(denum, axis=0, keepdims=True)
-            llr = np.log(np.transpose(num_post[0]) - np.transpose(denum_post[0]))
+            llr = np.log(num_post / denum_post)
             LLR.append(llr)
         result = np.zeros((len(x)*len(zeros))) 
         for i, n in enumerate(LLR):
@@ -150,7 +150,9 @@ class Modem:
         if self.M == 2 and self.Type == 'PSK':
             M = 'B'
         elif self.M == 4 and self.Type == 'PSK':
-            M = 'Q'   
+            M = 'Q'
+        else:
+            M = self.M
         plt.grid()
         plt.axvline(linewidth=1.0, color='black')
         plt.axhline(linewidth=1.0, color='black')
@@ -158,32 +160,23 @@ class Modem:
         plt.title(str(M)+'-'+str(self.Type)+', phase rotation: '+str(round(self.phi, 5))+\
                   ', Mapping: '+str(self.SymMap)+', Input: '+str(self.InType))
         plt.show()
-	
+
 class PSKModulator(Modem):  
     def __init__(self, M, phi, SymMap='Gray', InType='Binary'):
         super().__init__(M, phi, SymMap, InType)
         self.s = [i for i in range(self.M)]
         self.m = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.s)/self.M))
         self.Type = 'PSK'
-
+        self.code_book = self.create_constellation(self.s, self.m)
     
     def __fast_qpsk_mod(self, s):
         m = (s[::2]*(-2)+1)*np.cos(np.pi/4)+1j*(s[1::2]*(-2)+1)*np.sin(np.pi/4)
-        return m
-    
-    def init(self):
-        dict_out = self.create_constellation(self.s, self.m)
-        return dict_out
-        
+        return m       
                                     
-    def modulate(self, x, code_book):
+    def modulate(self, x):
         modulated = []
-        if self.M == 4 and self.phi == np.pi / 4:
-            if self.BinIn == True:
-                modulated = self.__fast_qpsk_mod(x) 
-            else:
-                s = self.de2bin(x)
-                modulated = self.__fast_qpsk_mod(s)
+        if self.M == 4 and self.phi == np.pi / 4 and self.SymMap=='Gray' and self.InType=='Binary':
+            modulated = self.__fast_qpsk_mod(x)
         else:
             if self.BinIn == True: 
                 m = []
@@ -194,27 +187,16 @@ class PSKModulator(Modem):
                     y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
                     for d in y:
                         s = s+str(int(d))
-                    modulated.append(code_book[s])
+                    modulated.append(self.code_book[s])
             else:
                 for a in x:
-                    modulated.append(code_book[x])
+                    modulated.append(self.code_book[a])
         return np.array(modulated)
 
 class PSKDemodulator(Modem):
-    def __init__(self, M, phi, SymMap='Gray', InType='Binary'):
+    def __init__(self, M, phi, SymMap='Gray', InType='Binary', DecisionMethod='Approximate LLR'):
         super().__init__(M, phi, SymMap, InType)
         
-    def __fast_qpsk_demod(self, x):
-        LLR = []
-        for inx in x:
-            re =  (-( np.real(inx) - np.cos(np.pi/4))**2 ) - ( -(np.real(inx) + np.cos(np.pi/4))**2 )
-            im =  (-( np.imag(inx) - np.sin(np.pi/4))**2 ) - ( -(np.imag(inx) + np.sin(np.pi/4))**2 )
-            LLR.append(float(re))
-            LLR.append(float(im))
-        return LLR
-    
-    
-    def init(self):
         zeros = []
         ones = []
         for c in range(int(np.log2(self.M))):
@@ -230,20 +212,34 @@ class PSKDemodulator(Modem):
                     zeros[ind].append(codebook[idx])
                 else:
                     ones[ind].append(codebook[idx])
-        return zeros, ones
+        self.zeros = zeros
+        self.ones = ones
+        self.DecisionMethod = DecisionMethod
+        
+    def __fast_qpsk_demod(self, x):
+        LLR = []
+        for inx in x:
+            re =  (-( np.real(inx) - np.cos(np.pi/4))**2 ) - ( -(np.real(inx) + np.cos(np.pi/4))**2 )
+            im =  (-( np.imag(inx) - np.sin(np.pi/4))**2 ) - ( -(np.imag(inx) + np.sin(np.pi/4))**2 )
+            LLR.append(float(re))
+            LLR.append(float(im))
+        return np.array(LLR)        
     
-    def demodulate(self, x, zeros, ones, DecisionMethod):
-        if self.M == 4 and self.phi == np.pi / 4:
-            result = self.__fast_qpsk_demod(x)
+    def demodulate(self, x):
+        if self.M == 4 and self.phi == np.pi / 4 and self.SymMap=='Gray' and self.InType=='Binary':
+            if self.DecisionMethod == 'Approximate LLR' or self.DecisionMethod == 'Exact LLR':
+                result = self.__fast_qpsk_demod(x)
+            elif self.DecisionMethod == 'Hard':
+                result = (np.sign(-self.__fast_qpsk_demod(x)) + 1) / 2
         else:
-            if DecisionMethod == 'Exact LLR':
-                result = self.ExactLLR(x, zeros, ones)
-            elif DecisionMethod == 'Approximate LLR':
-                result = self.ApproxLLR(x, zeros, ones)
-            elif DecisionMethod == 'Hard':
-                result = (np.sign(self.ApproxLLR(x, zeros, ones)) + 1) / 2
+            if self.DecisionMethod == 'Exact LLR':
+                result = self.ExactLLR(x, self.zeros, self.ones)
+            elif self.DecisionMethod == 'Approximate LLR':
+                result = self.ApproxLLR(x, self.zeros, self.ones)
+            elif self.DecisionMethod == 'Hard':
+                result = (np.sign(-self.ApproxLLR(x, self.zeros, self.ones)) + 1) / 2
             else:
                 print("Wrong Decision Method (should be Approximate LLR, Exact LLR or Hard). Now Decision Method = "\
-                      + str(DecisionMethod))
+                      + str(self.DecisionMethod))
                 sys.exit(0)                            
         return result  
