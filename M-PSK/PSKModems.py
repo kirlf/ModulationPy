@@ -172,27 +172,27 @@ class PSKModulator(PSKModem):
         super().__init__(M, phi, sym_map, in_type)
     
     def __fast_qpsk_mod(self, s):
-        m = (s[::2]*(-2)+1)*np.cos(np.pi/4)+1j*(s[1::2]*(-2)+1)*np.sin(np.pi/4)
+        m = (int(s[::2])*(-2)+1)*np.cos(np.pi/4)+1j*(int(s[1::2])*(-2)+1)*np.sin(np.pi/4)
         return m       
                                     
     def modulate(self, x):
         modulated = []
-        if self.M == 4 and self.phi == np.pi / 4 and self.sym_map=='Gray' and self.in_type=='Binary':
-            modulated = self.__fast_qpsk_mod(x)
-        else:
-            if self.BinIn == True: 
-                m = []
-                n = int(np.log2(self.M))
-                length = len(x)
-                for c in range(int(length/n)):
-                    s = ''
-                    y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
-                    for d in y:
-                        s = s+str(int(d))
+        if self.BinIn == True: 
+            m = []
+            n = int(np.log2(self.M))
+            length = len(x)
+            for c in range(int(length/n)):
+                s = ''
+                y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
+                for d in y:
+                    s = s+str(int(d))
+                if self.M == 4 and self.phi == np.pi / 4 and self.sym_map=='Gray':
+                    modulated.append(self.__fast_qpsk_mod(s))
+                else:
                     modulated.append(self.code_book[s])
-            else:
-                for a in x:
-                    modulated.append(self.code_book[a])
+        else:
+            for a in x:
+                modulated.append(self.code_book[a])
         return np.array(modulated)
 
 class PSKDemodulator(PSKModem):
