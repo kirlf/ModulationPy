@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 class Modem:
     def __init__(self, M, sym_map='Gray', in_type='Binary'):
         self.M = M
-        self.s = [i for i in range(self.M)]
+        self.m = [i for i in range(self.M)]
         if in_type != 'Decimal' and in_type != 'Binary':     
             print("Wrong input data type (should be 'Decimal' or 'Binary').\n Now in_type = " \
                   + str(in_type))
@@ -36,6 +36,12 @@ class Modem:
                 	y = y + str(int(symbol[idx])^int(symbol[idx-1]))
             s2.append(int(y, 2))
         return s2
+
+    def dict_make(self, s, m):
+        dict_out = {}
+        for x, y in zip(s, m):
+            dict_out[x] = y
+        return dict_out
     
     
     def ApproxLLR(self, x, zeros, ones, NoiseVar=1):
@@ -78,19 +84,16 @@ class Modem:
         return result
     
 class PSKModem(Modem):
-    def __init__(self, M, phi=0, sym_map='Gray', in_type='Binary'):
+    def __init__(self, M, phi=0, sym_map='Gray', in_type='Binary', decision_method='Approximate LLR'):
         super().__init__(M, sym_map, in_type)
-        self.phi = phi
-        self.m = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.s)/self.M))
-        self.code_book = self.create_constellation(self.s, self.m)
-
-    def __dict_make(self, s, m):
-        dict_out = {}
-        for x, y in zip(s, m):
-            dict_out[x] = y
-        return dict_out
+        self.phi = phi 
+        self.s = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.m)/self.M))
+        self.code_book = self.__create_constellation(self.m, self.s)
+        self.zeros, self.ones = self.__llr_preparation()
+        self.decision_method = decision_method
+      
     
-    def de2bin(self, s):
+    def __de2bin(self, s):
         b = []
         for i in s:
             a = bin(i)[2:]
@@ -101,35 +104,51 @@ class PSKModem(Modem):
             b.append(a)
         return b
     
-    def create_constellation(self, s, m, mode='Modulator'):
+    def __create_constellation(self, s, m, mode='Modulator'):
         dict_out = {}
         if mode == 'Modulator':
             if self.in_type == 'Decimal' and self.sym_map == 'Binary':
-                dict_out = self.__dict_make(s, m)
+                dict_out = self.dict_make(s, m)
             elif self.in_type == 'Decimal' and self.sym_map == 'Gray':
                 s2 = self.gray_encoding(s)
-                dict_out = self.__dict_make(s2, m)
+                dict_out = self.dict_make(s2, m)
             elif self.in_type == 'Binary' and self.sym_map == 'Binary':
-                b = self.de2bin(s)
-                dict_out = self.__dict_make(b, m)
+                b = self.__de2bin(s)
+                dict_out = self.dict_make(b, m)
             elif self.in_type == 'Binary' and self.sym_map == 'Gray':
                 s2 = self.gray_encoding(s)
-                b = self.de2bin(s2)
-                dict_out = self.__dict_make(b, m)
+                b = self.__de2bin(s2)
+                dict_out = self.dict_make(b, m)
         elif mode == 'Demodulator':
             if self.sym_map == 'Binary':
-                dict_out = self.__dict_make(s, m)
+                dict_out = self.dict_make(s, m)
             elif self.sym_map == 'Gray':
                 s2 = self.gray_encoding(s)
-                dict_out = self.__dict_make(s2, m)
+                dict_out = self.dict_make(s2, m)
         else:
             print("Wrong mode (should be 'Modulator' or 'Demodulator').\n Now mode = " \
                   + str(mode))
             sys.exit(0)
         return dict_out
 
+    def __llr_preparation(self):
+        code_book_demod = self.__create_constellation(self.m, self.s, mode='Demodulator')
+        zeros = []  
+        ones = []
+        for c in range(int(np.log2(self.M))):
+            zeros.append([])
+            ones.append([])
+        b = self.__de2bin(self.m)
+        for idx, n in enumerate(b):
+            for ind, m in enumerate(n):
+                if m == '0':
+                    zeros[ind].append(code_book_demod[idx])
+                else:
+                    ones[ind].append(code_book_demod[idx])
+        return zeros, ones
+
     def plot_const(self):
-        const = self.create_constellation(self.s, self.m)
+        const = self.code_book
         fig = plt.figure(figsize=(6, 4), dpi=150)
         for i in list(const):
             x = np.real(const[i])
@@ -164,16 +183,7 @@ class PSKModem(Modem):
         plt.axis([-1.5,1.5,-1.5,1.5])
         plt.title(M+'PSK, phase rotation: '+str(round(self.phi, 5))+\
                   ', Mapping: '+str(self.sym_map)+', Input: '+str(self.in_type))
-        plt.show()
-
-
-class PSKModulator(PSKModem):  
-    def __init__(self, M, phi=0, sym_map='Gray', in_type='Binary'):
-        super().__init__(M, phi, sym_map, in_type)
-    
-    def __fast_qpsk_mod(self, s):
-        m = (int(s[::2])*(-2)+1)*np.cos(np.pi/4)+1j*(int(s[1::2])*(-2)+1)*np.sin(np.pi/4)
-        return m       
+        plt.show()   
                                     
     def modulate(self, x):
         modulated = []
@@ -194,29 +204,30 @@ class PSKModulator(PSKModem):
             for a in x:
                 modulated.append(self.code_book[a])
         return np.array(modulated)
+     
+    def demodulate(self, x):
+        if self.M == 4 and self.phi == np.pi / 4 and self.sym_map=='Gray' and self.in_type=='Binary':
+            if self.decision_method == 'Approximate LLR' or self.decision_method == 'Exact LLR':
+                result = self.__fast_qpsk_demod(x)
+            elif self.decision_method == 'Hard':
+                result = (np.sign(-self.__fast_qpsk_demod(x)) + 1) / 2
+        else:
+            if self.decision_method == 'Exact LLR':
+                result = self.ExactLLR(x, self.zeros, self.ones)
+            elif self.decision_method == 'Approximate LLR':
+                result = self.ApproxLLR(x, self.zeros, self.ones)
+            elif self.decision_method == 'Hard':
+                result = (np.sign(-self.ApproxLLR(x, self.zeros, self.ones)) + 1) / 2
+            else:
+                print("Wrong Decision Method (should be Approximate LLR, Exact LLR or Hard). Now Decision Method = "\
+                      + str(self.decision_method))
+                sys.exit(0)                            
+        return result 
 
-class PSKDemodulator(PSKModem):
-    def __init__(self, M, phi, sym_map='Gray', in_type='Binary', DecisionMethod='Approximate LLR'):
-        super().__init__(M, phi, sym_map, in_type)        
-        zeros = []
-        ones = []
-        for c in range(int(np.log2(self.M))):
-            zeros.append([])
-            ones.append([])
-        s = [i for i in range(self.M)]
-        m = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(s)/self.M))
-        codebook = self.create_constellation(s, m, mode='Demodulator')
-        b = self.de2bin(s)
-        for idx, n in enumerate(b):
-            for ind, m in enumerate(n):
-                if m == '0':
-                    zeros[ind].append(codebook[idx])
-                else:
-                    ones[ind].append(codebook[idx])
-        self.zeros = zeros
-        self.ones = ones
-        self.DecisionMethod = DecisionMethod
-        
+    def __fast_qpsk_mod(self, s):
+        m = (int(s[::2])*(-2)+1)*np.cos(np.pi/4)+1j*(int(s[1::2])*(-2)+1)*np.sin(np.pi/4)
+        return m   
+
     def __fast_qpsk_demod(self, x):
         LLR = []
         for inx in x:
@@ -226,24 +237,7 @@ class PSKDemodulator(PSKModem):
             LLR.append(float(im))
         return np.array(LLR)        
     
-    def demodulate(self, x):
-        if self.M == 4 and self.phi == np.pi / 4 and self.sym_map=='Gray' and self.in_type=='Binary':
-            if self.DecisionMethod == 'Approximate LLR' or self.DecisionMethod == 'Exact LLR':
-                result = self.__fast_qpsk_demod(x)
-            elif self.DecisionMethod == 'Hard':
-                result = (np.sign(-self.__fast_qpsk_demod(x)) + 1) / 2
-        else:
-            if self.DecisionMethod == 'Exact LLR':
-                result = self.ExactLLR(x, self.zeros, self.ones)
-            elif self.DecisionMethod == 'Approximate LLR':
-                result = self.ApproxLLR(x, self.zeros, self.ones)
-            elif self.DecisionMethod == 'Hard':
-                result = (np.sign(-self.ApproxLLR(x, self.zeros, self.ones)) + 1) / 2
-            else:
-                print("Wrong Decision Method (should be Approximate LLR, Exact LLR or Hard). Now Decision Method = "\
-                      + str(self.DecisionMethod))
-                sys.exit(0)                            
-        return result 
+
     
 class QAMModulator(Modem):
     def __init__(self, M, sym_map='Gray', in_type='Binary'):
@@ -256,7 +250,7 @@ class QAMModulator(Modem):
         b = -2*(np.array(self.s) % c) + c - 1
         a = 2*np.floor(np.array(self.s)/c) - c + 1 
         self.m = list((a + 1j*b))
-        self.code_book = self.create_constellation(self.s, self.m)
+        self.code_book = self.__create_constellation(self.s, self.m)
 
     def modulate(self, x):
     	modulated =[]
