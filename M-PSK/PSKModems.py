@@ -5,30 +5,20 @@ import random
 import matplotlib.pyplot as plt
 
 class Modem:
-    def __init__(self, M, sym_map='Gray', in_type='Binary', decision_method = 'Approximate LLR'):
+    def __init__(self, M, gray_map=True, bin_input='Binary', decision_method = 'Approximate LLR'):
         
         if np.log2(M) != np.round(np.log2(M)):
             raise ValueError("M should be 2**n, with n=1, 2, 3...")  
-        if in_type != 'Decimal' and in_type != 'Binary':     
-            raise ValueError("Wrong input data type (should be 'Decimal' or 'Binary').\n Now in_type = " \
-                  + str(in_type))  
-        if sym_map != 'Gray' and sym_map != 'Binary':     
-            raise ValueError("Wrong mapping type (should be 'Gray' or 'Binary').\n Now sym_map = " \
-                  + str(sym_map))
         if decision_method != 'Approximate LLR' and decision_method != 'Exact LLR' and decision_method != 'Hard':
             raise ValueError("Wrong Decision Method (should be Approximate LLR, Exact LLR or Hard).\n Now Decision Method = "\
                   + str(decision_method))
         
         self.M = M    
         self.m = [i for i in range(self.M)]    
-        self.sym_map = sym_map
-        self.in_type = in_type
+        self.gray_map = gray_map
+        self.bin_input = bin_input
         self.decision_method = decision_method
         
-        if in_type == 'Binary':
-            self.BinIn = True
-        else:
-            self.BinIn = False
        
     def gray_encoding(self, s):
         s2 = []
@@ -37,10 +27,10 @@ class Modem:
             if len(symbol) < np.log2(self.M):
                 symbol = int( (np.log2(self.M) - len(symbol)) )*'0'+symbol
             for idx in range(len(symbol)):
-            	if idx == 0:
-                	y = symbol[idx]
-            	else:
-                	y = y + str(int(symbol[idx])^int(symbol[idx-1]))
+                if idx == 0:
+                    y = symbol[idx]
+                else:
+                    y = y + str(int(symbol[idx])^int(symbol[idx-1]))
             s2.append(int(y, 2))
         return s2
 
@@ -91,8 +81,8 @@ class Modem:
         return result
     
 class PSKModem(Modem):
-    def __init__(self, M, phi=0, sym_map='Gray', in_type='Binary', decision_method='Approximate LLR'):
-        super().__init__(M, sym_map, in_type, decision_method)
+    def __init__(self, M, phi=0, gray_map=True, bin_input=True, decision_method='Approximate LLR'):
+        super().__init__(M, gray_map, bin_input, decision_method)
         self.phi = phi 
         self.s = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.m)/self.M))
         self.code_book = self.__create_constellation(self.m, self.s)
@@ -113,22 +103,22 @@ class PSKModem(Modem):
     def __create_constellation(self, s, m, mode='Modulator'):
         dict_out = {}
         if mode == 'Modulator':
-            if self.in_type == 'Decimal' and self.sym_map == 'Binary':
+            if self.bin_input == False and self.gray_map == False:
                 dict_out = self.dict_make(s, m)
-            elif self.in_type == 'Decimal' and self.sym_map == 'Gray':
+            elif self.bin_input == False and self.gray_map == True:
                 s2 = self.gray_encoding(s)
                 dict_out = self.dict_make(s2, m)
-            elif self.in_type == 'Binary' and self.sym_map == 'Binary':
+            elif self.bin_input == True and self.gray_map == False:
                 b = self.__de2bin(s)
                 dict_out = self.dict_make(b, m)
-            elif self.in_type == 'Binary' and self.sym_map == 'Gray':
+            elif self.bin_input == True and self.gray_map == True:
                 s2 = self.gray_encoding(s)
                 b = self.__de2bin(s2)
                 dict_out = self.dict_make(b, m)
         elif mode == 'Demodulator':
-            if self.sym_map == 'Binary':
+            if self.gray_map == False:
                 dict_out = self.dict_make(s, m)
-            elif self.sym_map == 'Gray':
+            elif self.gray_map == True:
                 s2 = self.gray_encoding(s)
                 dict_out = self.dict_make(s2, m)
         return dict_out
@@ -179,21 +169,32 @@ class PSKModem(Modem):
             M = 'Q'
         else:
             M = str(self.M)+"-"
+
+        if self.gray_map == True:
+            mapping = 'Gray'
+        else:
+            mapping = 'Binary'
+
+        if self.bin_input == True:
+            inputs = 'Binary'
+        else:
+            inputs = 'Decimal'
+
         plt.grid()
         plt.axvline(linewidth=1.0, color='black')
         plt.axhline(linewidth=1.0, color='black')
         plt.axis([-1.5,1.5,-1.5,1.5])
         plt.title(M+'PSK, phase rotation: '+str(round(self.phi, 5))+\
-                  ', Mapping: '+str(self.sym_map)+', Input: '+str(self.in_type))
+                  ', Mapping: '+mapping+', Input: '+inputs)
         plt.show()   
                                     
     def modulate(self, x):
         modulated = []
-        if self.BinIn == True: 
+        if self.bin_input == True: 
             m = []
             n = int(np.log2(self.M))
-            length = len(x)
-            for c in range(int(length/n)):
+            lenx = len(x)
+            for c in range(int(lenx/n)):
                 s = ''
                 y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
                 for d in y:
@@ -215,11 +216,11 @@ class PSKModem(Modem):
     
     
 class QAMModem(Modem):
-    def __init__(self, M, sym_map='Gray', in_type='Binary'):
-        super().__init__(M, sym_map, in_type)
+    def __init__(self, M, gray_map=True, bin_input=True):
+        super().__init__(M, gray_map, bin_input)
         
         if np.sqrt(M) != np.fix(np.sqrt(M)) or np.log2(np.sqrt(M)) != np.fix(np.log2(np.sqrt(M))):
-        	raise ValueError('M must be a square of a power of 2')
+            raise ValueError('M must be a square of a power of 2')
         self.Type = 'QAM'
         c = np.sqrt(M)
         b = -2*(np.array(self.s) % c) + c - 1
@@ -228,18 +229,18 @@ class QAMModem(Modem):
         self.code_book = self.__create_constellation(self.s, self.m)
 
     def modulate(self, x):
-    	modulated = []
-    	if self.BinIn == True:
-    		m = []
-    		n = int(np.log2(self.M))
-    		length = len(x)
-    		for c in range(int(length/n)):
-    			s=''
-    			y = x[(c+(n-1)*c):(((n-1)*c)+(n-1)+(1+c))]
-    			for d in y:
-    				s = s+str(int(d))
-    			modulated.append(self.code_book[s])
-    	else:
-    		for a in x:
-    			modulated.append(self.code_book[a])
-    	return np.array(modulated)
+        modulated = []
+        if self.bin_input== True:
+            m = []
+            n = int(np.log2(self.M))
+            lenx = len(x)
+            for c in range(int(lenx/n)):
+                s=''
+                y = x[(c+(n-1)*c):(((n-1)*c)+(n-1)+(1+c))]
+                for d in y:
+                    s = s+str(int(d))
+                modulated.append(self.code_book[s])
+        else:
+            for a in x:
+                modulated.append(self.code_book[a])
+        return np.array(modulated)
