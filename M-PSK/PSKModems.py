@@ -1,7 +1,4 @@
 import numpy as np
-import sys
-from time import time
-import random
 import matplotlib.pyplot as plt
 
 class Modem:
