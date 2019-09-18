@@ -5,7 +5,7 @@ import random
 import matplotlib.pyplot as plt
 
 class Modem:
-    def __init__(self, M, gray_map=True, bin_input='Binary', decision_method = 'Approximate LLR'):
+    def __init__(self, M, gray_map = True, bin_input = True, decision_method = 'Approximate LLR'):
         
         if np.log2(M) != np.round(np.log2(M)):
             raise ValueError("M should be 2**n, with n=1, 2, 3...")  
