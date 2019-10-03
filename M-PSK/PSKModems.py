@@ -16,8 +16,35 @@ class Modem:
         self.bin_input = bin_input
         self.decision_method = decision_method
         
-       
+    
+    '''
+    
+        SERVING METHODS
+
+    '''
+
+    def dict_make(self, s, m):
+        dict_out = {}
+        for x, y in zip(s, m):
+            dict_out[x] = y
+        return dict_out
+
     def gray_encoding(self, s):
+
+        ''' Encodes the binary sequence by Gray encoding rule.         
+        
+        Parameters
+        ----------
+        s : list of ints
+            Input binary sequence to be encoded by Gray.
+
+        Returns
+        -------
+        s2: list of ints
+            Output encoded by Gray sequence.
+
+        '''
+
         s2 = []
         for i in s:
             symbol = bin(i)[2:]
@@ -31,14 +58,41 @@ class Modem:
             s2.append(int(y, 2))
         return s2
 
-    def dict_make(self, s, m):
-        dict_out = {}
-        for x, y in zip(s, m):
-            dict_out[x] = y
-        return dict_out
+
+    '''
     
+        DECODING ALGORITHMS
+
+    '''
     
-    def ApproxLLR(self, x, zeros, ones, NoiseVar=1):
+    def ApproxLLR(self, x, zeros, ones, NoiseVar=1.):
+
+        ''' Calculates approximate Log-likelihood Ratios (LLRs) [1].         
+        
+        Parameters
+        ----------
+        x : 1-D ndarray of complex values
+            Received complex-valued symbols to be demodulated.
+        zeros : list of lists of complex values 
+            The coordinates where zeros can be placed in the signal constellation.
+        ones : list of lists of complex values 
+            The coordinates where ones can be placed in the signal constellation.
+        NoiseVar: float
+            Additive noise variance.
+
+        Returns
+        -------
+        result: 1-D ndarray of floats
+            Output LLRs.
+
+        Reference:
+            [1] Viterbi, A. J., “An Intuitive Justification and a 
+                Simplified Implementation of the MAP Decoder for Convolutional Codes,”
+                IEEE Journal on Selected Areas in Communications, 
+                vol. 16, No. 2, pp 260–264, Feb. 1998
+
+        '''
+
         LLR = []
         for d in range(len(zeros)): #or for d in range(len(ones)):
             num = []
@@ -56,26 +110,7 @@ class Modem:
             result[i::len(zeros)] = n
         return result
     
-    def ExactLLR(self, x, zeros, ones, NoiseVar=1):
-        LLR = []
-        for d in range(len(zeros)): #or for d in range(len(ones)):
-            num = []
-            for z in zeros[d]:
-                num.append( list ( np.exp ( -1* ( ( ( np.real(x) - np.real(z) )**2 )\
-                                                 + ( (np.imag(x) - np.imag(z))**2 ) ) / NoiseVar ) ) )
-            denum = []
-            for o in ones[d]:
-                denum.append( list ( np.exp ( -1*  ( ( ( np.real(x) - np.real(o) )**2 )\
-                                                + ( (np.imag(x) - np.imag(o) )**2 ) ) / NoiseVar ) ) )
-            
-            num_post = np.sum(num, axis=0, keepdims=True)
-            denum_post = np.sum(denum, axis=0, keepdims=True)
-            llr = np.log(num_post / denum_post)
-            LLR.append(llr)
-        result = np.zeros((len(x)*len(zeros))) 
-        for i, n in enumerate(LLR):
-            result[i::len(zeros)] = n
-        return result
+
     
 class PSKModem(Modem):
     def __init__(self, M, phi=0, gray_map=True, bin_input=True, decision_method='Approximate LLR'):
