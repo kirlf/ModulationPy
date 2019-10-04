@@ -20,7 +20,7 @@ class Modem:
 
     '''
 
-    def gray_encoding(self, s):
+    def __gray_encoding(self, s):
 
         ''' Encodes the binary sequence by Gray encoding rule.         
         
@@ -49,7 +49,7 @@ class Modem:
             s2.append(int(y, 2))
         return s2
 
-    def dict_make(self, m, s):
+    def __dict_make(self, m, s):
             
             ''' Creates dictionary where 
                 keys are decimal or binary values and
@@ -100,23 +100,23 @@ class Modem:
         dict_out = {}
         if modul_mode == True:
             if self.bin_input == False and self.gray_map == False:
-                dict_out = self.dict_make(m, s)
+                dict_out = self.__dict_make(m, s)
             elif self.bin_input == False and self.gray_map == True:
-                mg = self.gray_encoding(m)
-                dict_out = self.dict_make(mg, s)
+                mg = self.__gray_encoding(m)
+                dict_out = self.__dict_make(mg, s)
             elif self.bin_input == True and self.gray_map == False:
                 mb = self.de2bin(m)
-                dict_out = self.dict_make(mb, s)
+                dict_out = self.__dict_make(mb, s)
             elif self.bin_input == True and self.gray_map == True:
-                mg = self.gray_encoding(m)
+                mg = self.__gray_encoding(m)
                 mgb = self.de2bin(mg)
-                dict_out = self.dict_make(mgb, s)
+                dict_out = self.__dict_make(mgb, s)
         elif modul_mode == False:
             if self.gray_map == False:
-                dict_out = self.dict_make(m, s)
+                dict_out = self.__dict_make(m, s)
             elif self.gray_map == True:
-                mg = self.gray_encoding(m)
-                dict_out = self.dict_make(mg, s)
+                mg = self.__gray_encoding(m)
+                dict_out = self.__dict_make(mg, s)
         return dict_out
 
     def llr_preparation(self):
@@ -161,7 +161,7 @@ class Modem:
 
     '''
 
-    def bin_modulate(self, x):
+    def __bin_modulate(self, x):
 
         ''' Modulates binary stream.
 
@@ -188,7 +188,7 @@ class Modem:
             modulated.append(self.code_book[s])
         return modulated
 
-    def dec_modulate(self, x):
+    def __dec_modulate(self, x):
 
         ''' Modulates decimal stream.
 
@@ -216,7 +216,7 @@ class Modem:
 
     '''
     
-    def ApproxLLR(self, x, zeros, ones, NoiseVar=1.):
+    def __ApproxLLR(self, x, noise_var):
 
         ''' Calculates approximate Log-likelihood Ratios (LLRs) [1].         
         
@@ -224,11 +224,8 @@ class Modem:
         ----------
         x : 1-D ndarray of complex values
             Received complex-valued symbols to be demodulated.
-        zeros : list of lists of complex values 
-            The coordinates where zeros can be placed in the signal constellation.
-        ones : list of lists of complex values 
-            The coordinates where ones can be placed in the signal constellation.
-        NoiseVar: float
+
+        noise_var: float
             Additive noise variance.
 
         Returns
@@ -244,6 +241,8 @@ class Modem:
 
         '''
 
+        zeros = self.zeros
+        ones = self.ones
         LLR = []
         for d in range(len(zeros)): #or for d in range(len(ones)):
             num = []
@@ -255,7 +254,7 @@ class Modem:
             num_post = np.amin(num, axis=0, keepdims=True)
             denum_post = np.amin(denum, axis=0, keepdims=True)
             llr = np.transpose(num_post[0]) - np.transpose(denum_post[0])
-            LLR.append(-llr/NoiseVar)
+            LLR.append(-llr/noise_var)
         result = np.zeros((len(x)*len(zeros))) 
         for i, n in enumerate(LLR):
             result[i::len(zeros)] = n
@@ -284,12 +283,12 @@ class Modem:
         '''
         
         if self.bin_input == True: 
-            modulated = self.bin_modulate(x)
+            modulated = self.__bin_modulate(x)
         else:
-            modulated = self.dec_modulate(x)
+            modulated = self.__dec_modulate(x)
         return np.array(modulated)
      
-    def demodulate(self, x):
+    def demodulate(self, x, noise_var=1.):
 
         ''' Demodulates complex symbols.
 
@@ -297,6 +296,9 @@ class Modem:
         ----------
         x : 1-D ndarray of complex symbols
             Decimal or binary stream to be modulated.
+
+        noise_var: float
+            Additive noise variance.
 
         Returns
         -------
@@ -306,9 +308,9 @@ class Modem:
         '''
 
         if self.soft_decision == True:
-            result = self.ApproxLLR(x, self.zeros, self.ones)
+            result = self.__ApproxLLR(x, noise_var)
         else:
-            result = (np.sign(-self.ApproxLLR(x, self.zeros, self.ones)) + 1) / 2                        
+            result = (np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2                        
         return result 
 
     
@@ -387,31 +389,80 @@ class PSKModem(Modem):
     
     
 class QAMModem(Modem):
-    def __init__(self, M, gray_map=True, bin_input=True):
-        super().__init__(M, gray_map, bin_input)
+    def __init__(self, M, gray_map=True, bin_input=True, soft_decision = True):
+        super().__init__(M, gray_map, bin_input, soft_decision)
         
         if np.sqrt(M) != np.fix(np.sqrt(M)) or np.log2(np.sqrt(M)) != np.fix(np.log2(np.sqrt(M))):
             raise ValueError('M must be a square of a power of 2')
-        self.Type = 'QAM'
-        c = np.sqrt(M)
-        b = -2*(np.array(self.s) % c) + c - 1
-        a = 2*np.floor(np.array(self.s)/c) - c + 1 
-        self.m = list((a + 1j*b))
-        self.code_book = self.create_constellation(self.s, self.m)
 
-    def modulate(self, x):
-        modulated = []
-        if self.bin_input== True:
-            m = []
-            n = int(np.log2(self.M))
-            lenx = len(x)
-            for c in range(int(lenx/n)):
-                s=''
-                y = x[(c+(n-1)*c):(((n-1)*c)+(n-1)+(1+c))]
-                for d in y:
-                    s = s+str(int(d))
-                modulated.append(self.code_book[s])
+        self.m = [i for i in range(self.M)]  
+
+        c = np.sqrt(M)
+        b = -2*(np.array(self.m) % c) + c - 1
+        a = 2*np.floor(np.array(self.m) / c) - c + 1 
+        self.s = list((a + 1j*b))
+        self.code_book = self.create_constellation(self.m, self.s)
+        self.zeros, self.ones = self.llr_preparation()  
+
+        # TODO: fix the Gray case
+
+    def de2bin(self, s):
+        b = []
+        for i in s:
+            a = bin(i)[2:]
+            if len(a) < np.log2(self.M):
+                a = int((np.log2(self.M) - len(a)))*'0'+a
+            #if np.log2(self.M)%2 == 0:
+            #    a = a[::-1]
+            b.append(a)
+        return b
+
+
+    def plot_const(self):
+        const = self.code_book
+        fig = plt.figure(figsize=(6, 4), dpi=150)
+        for i in list(const):
+            x = np.real(const[i])
+            y = np.imag(const[i])
+            plt.plot(x, y, 'o', color='red')
+            if x < 0:
+                h = 'right'
+                xadd = -.05
+            else:
+                h = 'left'
+                xadd = .05
+            if y < 0:
+                v = 'top'
+                yadd = -.05
+            else:
+                v = 'bottom'
+                yadd = .05
+            if (abs(x) < 1e-9 and abs(y) > 1e-9):
+                h = 'center'
+            elif abs(x) > 1e-9 and abs(y) < 1e-9:
+                v = 'center'     
+            plt.annotate(i,(x+xadd,y+yadd), ha=h, va=v)
+        #if self.M == 2:
+        #    M = 'B'
+        #elif self.M == 4:
+        #    M = 'Q'
+        #else:
+        #    M = str(self.M)+"-"
+        M = str(self.M)
+        if self.gray_map == True:
+            mapping = 'Gray'
         else:
-            for a in x:
-                modulated.append(self.code_book[a])
-        return np.array(modulated)
+            mapping = 'Binary'
+
+        if self.bin_input == True:
+            inputs = 'Binary'
+        else:
+            inputs = 'Decimal'
+
+        plt.grid()
+        plt.axvline(linewidth=1.0, color='black')
+        plt.axhline(linewidth=1.0, color='black')
+        limits = np.log2(self.M)
+        plt.axis([-limits,limits,-limits,limits])
+        plt.title(M+'-QAM, Mapping: '+mapping+', Input: '+inputs)
+        plt.show()   
