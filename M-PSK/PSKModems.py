@@ -2,19 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Modem:
-    def __init__(self, M, gray_map = True, bin_input = True, decision_method = 'Approximate LLR'):
+    def __init__(self, M, gray_map = True, bin_input = True, soft_decision = True):
         
         if np.log2(M) != np.round(np.log2(M)):
             raise ValueError("M should be 2**n, with n=1, 2, 3...")  
-        if decision_method != 'Approximate LLR' and decision_method != 'Exact LLR' and decision_method != 'Hard':
-            raise ValueError("Wrong Decision Method (should be Approximate LLR, Exact LLR or Hard).\n Now Decision Method = "\
-                  + str(decision_method))
         
         self.M = M    
         self.m = [i for i in range(self.M)]    
         self.gray_map = gray_map
         self.bin_input = bin_input
-        self.decision_method = decision_method
+        self.soft_decision = soft_decision
         
     
     '''
@@ -22,12 +19,6 @@ class Modem:
         SERVING METHODS
 
     '''
-
-    def dict_make(self, s, m):
-        dict_out = {}
-        for x, y in zip(s, m):
-            dict_out[x] = y
-        return dict_out
 
     def gray_encoding(self, s):
 
@@ -58,10 +49,170 @@ class Modem:
             s2.append(int(y, 2))
         return s2
 
+    def dict_make(self, m, s):
+            
+            ''' Creates dictionary where 
+                keys are decimal or binary values and
+                values are complex values
+
+            Parameters
+            ----------
+            m : list of ints
+                Decimal or binary sequence to be key of dictionary.
+
+            s: list of ints
+                Complex envelope to be values of dictionary.
+
+            Returns
+            -------
+            dict_out : dict
+                Output dictionary.        
+
+            '''
+            
+            dict_out = {}
+            for x, y in zip(m, s):
+                dict_out[x] = y
+            return dict_out
+
+
+    def create_constellation(self, m, s, modul_mode=True):
+
+        ''' Creates signal constellation.
+
+        Parameters
+        ----------
+        m : list of ints
+            Possible decimal values of the signal constellation (0 ... M-1).
+
+        s : list of complex values
+            Possible coordinates of the signal constellation.
+
+        Returns
+        -------
+        dict_out: dict
+            Output dictionary where 
+            key is the bit sequence or decimal value and 
+            value is the complex coordinate.         
+
+        '''
+
+        dict_out = {}
+        if modul_mode == True:
+            if self.bin_input == False and self.gray_map == False:
+                dict_out = self.dict_make(m, s)
+            elif self.bin_input == False and self.gray_map == True:
+                mg = self.gray_encoding(m)
+                dict_out = self.dict_make(mg, s)
+            elif self.bin_input == True and self.gray_map == False:
+                mb = self.de2bin(m)
+                dict_out = self.dict_make(mb, s)
+            elif self.bin_input == True and self.gray_map == True:
+                mg = self.gray_encoding(m)
+                mgb = self.de2bin(mg)
+                dict_out = self.dict_make(mgb, s)
+        elif modul_mode == False:
+            if self.gray_map == False:
+                dict_out = self.dict_make(m, s)
+            elif self.gray_map == True:
+                mg = self.gray_encoding(m)
+                dict_out = self.dict_make(mg, s)
+        return dict_out
+
+    def llr_preparation(self):
+
+
+        ''' Creates the coordinates 
+        where either zeros or ones can be placed in the signal constellation..
+
+
+        Returns
+        -------
+        zeros : list of lists of complex values 
+            The coordinates where zeros can be placed in the signal constellation.
+
+        ones : list of lists of complex values 
+            The coordinates where ones can be placed in the signal constellation.        
+
+        '''
+
+        code_book_demod = self.create_constellation(self.m, self.s, modul_mode=False)
+        
+        zeros = []  
+        ones = []
+        for c in range(int(np.log2(self.M))):
+            zeros.append([])
+            ones.append([])
+
+        b = self.de2bin(self.m)
+        for idx, n in enumerate(b):
+            for ind, m in enumerate(n):
+                if m == '0':
+                    zeros[ind].append(code_book_demod[idx])
+                else:
+                    ones[ind].append(code_book_demod[idx])
+        return zeros, ones
+
+
 
     '''
     
-        DECODING ALGORITHMS
+        MODULATION ALGORITHMS
+
+    '''
+
+    def bin_modulate(self, x):
+
+        ''' Modulates binary stream.
+
+        Parameters
+        ----------
+        x : 1-D ndarray of ints
+            Binary stream to be modulated.
+
+        Returns
+        -------
+        modulated : list of complex values
+            Modulated symbols (signal envelope).
+
+        '''
+        modulated = []
+        m = []
+        n = int(np.log2(self.M))
+        lenx = len(x)
+        for c in range(int(lenx/n)):
+            s = ''
+            y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
+            for d in y:
+                s = s+str(int(d))
+            modulated.append(self.code_book[s])
+        return modulated
+
+    def dec_modulate(self, x):
+
+        ''' Modulates decimal stream.
+
+        Parameters
+        ----------
+        x : 1-D ndarray of ints
+            Decimal stream to be modulated.
+
+        Returns
+        -------
+        modulated : list of complex values
+            Modulated symbols (signal envelope).
+
+        '''
+        modulated = []
+        for a in x:
+            modulated.append(self.code_book[a])
+        return modulated
+
+
+
+    '''
+    
+        DEMODULATION ALGORITHMS
 
     '''
     
@@ -109,19 +260,68 @@ class Modem:
         for i, n in enumerate(LLR):
             result[i::len(zeros)] = n
         return result
+
+    '''
     
+        METHODS TO EXECUTE
+
+    '''
+    
+    def modulate(self, x):
+
+        ''' Modulates binary or decimal stream.
+
+        Parameters
+        ----------
+        x : 1-D ndarray of ints
+            Decimal or binary stream to be modulated.
+
+        Returns
+        -------
+        modulated : 1-D array of complex values
+            Modulated symbols (signal envelope).
+
+        '''
+        
+        if self.bin_input == True: 
+            modulated = self.bin_modulate(x)
+        else:
+            modulated = self.dec_modulate(x)
+        return np.array(modulated)
+     
+    def demodulate(self, x):
+
+        ''' Demodulates complex symbols.
+
+        Parameters
+        ----------
+        x : 1-D ndarray of complex symbols
+            Decimal or binary stream to be modulated.
+
+        Returns
+        -------
+        result : 1-D array floats
+            Demodulated message (LLRs or binary sequence).
+
+        '''
+
+        if self.soft_decision == True:
+            result = self.ApproxLLR(x, self.zeros, self.ones)
+        else:
+            result = (np.sign(-self.ApproxLLR(x, self.zeros, self.ones)) + 1) / 2                        
+        return result 
 
     
 class PSKModem(Modem):
-    def __init__(self, M, phi=0, gray_map=True, bin_input=True, decision_method='Approximate LLR'):
-        super().__init__(M, gray_map, bin_input, decision_method)
+    def __init__(self, M, phi=0, gray_map=True, bin_input=True, soft_decision=True):
+        super().__init__(M, gray_map, bin_input, soft_decision)
         self.phi = phi 
         self.s = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.m)/self.M))
-        self.code_book = self.__create_constellation(self.m, self.s)
-        self.zeros, self.ones = self.__llr_preparation()  
+        self.code_book = self.create_constellation(self.m, self.s)
+        self.zeros, self.ones = self.llr_preparation()  
       
     
-    def __de2bin(self, s):
+    def de2bin(self, s):
         b = []
         for i in s:
             a = bin(i)[2:]
@@ -132,44 +332,7 @@ class PSKModem(Modem):
             b.append(a)
         return b
     
-    def __create_constellation(self, s, m, mode='Modulator'):
-        dict_out = {}
-        if mode == 'Modulator':
-            if self.bin_input == False and self.gray_map == False:
-                dict_out = self.dict_make(s, m)
-            elif self.bin_input == False and self.gray_map == True:
-                s2 = self.gray_encoding(s)
-                dict_out = self.dict_make(s2, m)
-            elif self.bin_input == True and self.gray_map == False:
-                b = self.__de2bin(s)
-                dict_out = self.dict_make(b, m)
-            elif self.bin_input == True and self.gray_map == True:
-                s2 = self.gray_encoding(s)
-                b = self.__de2bin(s2)
-                dict_out = self.dict_make(b, m)
-        elif mode == 'Demodulator':
-            if self.gray_map == False:
-                dict_out = self.dict_make(s, m)
-            elif self.gray_map == True:
-                s2 = self.gray_encoding(s)
-                dict_out = self.dict_make(s2, m)
-        return dict_out
 
-    def __llr_preparation(self):
-        code_book_demod = self.__create_constellation(self.m, self.s, mode='Demodulator')
-        zeros = []  
-        ones = []
-        for c in range(int(np.log2(self.M))):
-            zeros.append([])
-            ones.append([])
-        b = self.__de2bin(self.m)
-        for idx, n in enumerate(b):
-            for ind, m in enumerate(n):
-                if m == '0':
-                    zeros[ind].append(code_book_demod[idx])
-                else:
-                    ones[ind].append(code_book_demod[idx])
-        return zeros, ones
 
     def plot_const(self):
         const = self.code_book
@@ -220,31 +383,7 @@ class PSKModem(Modem):
                   ', Mapping: '+mapping+', Input: '+inputs)
         plt.show()   
                                     
-    def modulate(self, x):
-        modulated = []
-        if self.bin_input == True: 
-            m = []
-            n = int(np.log2(self.M))
-            lenx = len(x)
-            for c in range(int(lenx/n)):
-                s = ''
-                y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
-                for d in y:
-                    s = s+str(int(d))
-                modulated.append(self.code_book[s])
-        else:
-            for a in x:
-                modulated.append(self.code_book[a])
-        return np.array(modulated)
-     
-    def demodulate(self, x):
-        if self.decision_method == 'Approximate LLR':
-            result = self.ApproxLLR(x, self.zeros, self.ones)
-        elif self.decision_method == 'Exact LLR':
-            result = self.ExactLLR(x, self.zeros, self.ones)
-        elif self.decision_method == 'Hard':
-            result = (np.sign(-self.ApproxLLR(x, self.zeros, self.ones)) + 1) / 2                        
-        return result 
+
     
     
 class QAMModem(Modem):
@@ -258,7 +397,7 @@ class QAMModem(Modem):
         b = -2*(np.array(self.s) % c) + c - 1
         a = 2*np.floor(np.array(self.s)/c) - c + 1 
         self.m = list((a + 1j*b))
-        self.code_book = self.__create_constellation(self.s, self.m)
+        self.code_book = self.create_constellation(self.s, self.m)
 
     def modulate(self, x):
         modulated = []
