@@ -396,15 +396,28 @@ class QAMModem(Modem):
             raise ValueError('M must be a square of a power of 2')
 
         self.m = [i for i in range(self.M)]  
-
-        c = np.sqrt(M)
-        b = -2*(np.array(self.m) % c) + c - 1
-        a = 2*np.floor(np.array(self.m) / c) - c + 1 
-        self.s = list((a + 1j*b))
+        self.s = self.__qam_symbols()
         self.code_book = self.create_constellation(self.m, self.s)
+
+        if self.gray_map:
+            self.__gray_qam_arange()
+
         self.zeros, self.ones = self.llr_preparation()  
 
         # TODO: fix the Gray case
+
+    def __qam_symbols(self):
+        c = np.sqrt(self.M)
+        b = -2*(np.array(self.m) % c) + c - 1
+        a = 2*np.floor(np.array(self.m) / c) - c + 1 
+        s = list((a + 1j*b))
+        return  s
+
+    def __gray_qam_arange(self):
+        for idx, (key, item) in enumerate(self.code_book.items()):
+            if (np.floor(idx / np.sqrt(self.M)) % 2) != 0:
+                self.code_book[key] = np.conj(item)
+
 
     def de2bin(self, s):
         b = []
@@ -412,13 +425,22 @@ class QAMModem(Modem):
             a = bin(i)[2:]
             if len(a) < np.log2(self.M):
                 a = int((np.log2(self.M) - len(a)))*'0'+a
-            #if np.log2(self.M)%2 == 0:
-            #    a = a[::-1]
             b.append(a)
         return b
 
 
     def plot_const(self):
+
+        if self.M <= 16:
+            limits = np.log2(self.M)
+            size = 'small'
+        elif self.M == 64:
+            limits = 1.5*np.log2(self.M)
+            size = 'x-small'
+        else:
+            limits = 2.25*np.log2(self.M)
+            size = 'xx-small'
+
         const = self.code_book
         fig = plt.figure(figsize=(6, 4), dpi=150)
         for i in list(const):
@@ -441,13 +463,7 @@ class QAMModem(Modem):
                 h = 'center'
             elif abs(x) > 1e-9 and abs(y) < 1e-9:
                 v = 'center'     
-            plt.annotate(i,(x+xadd,y+yadd), ha=h, va=v)
-        #if self.M == 2:
-        #    M = 'B'
-        #elif self.M == 4:
-        #    M = 'Q'
-        #else:
-        #    M = str(self.M)+"-"
+            plt.annotate(i,(x+xadd,y+yadd), ha=h, va=v, size=size)
         M = str(self.M)
         if self.gray_map == True:
             mapping = 'Gray'
@@ -462,7 +478,6 @@ class QAMModem(Modem):
         plt.grid()
         plt.axvline(linewidth=1.0, color='black')
         plt.axhline(linewidth=1.0, color='black')
-        limits = np.log2(self.M)
         plt.axis([-limits,limits,-limits,limits])
         plt.title(M+'-QAM, Mapping: '+mapping+', Input: '+inputs)
         plt.show()   
