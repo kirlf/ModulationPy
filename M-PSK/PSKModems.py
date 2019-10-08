@@ -324,6 +324,21 @@ class PSKModem(Modem):
       
     
     def de2bin(self, s):
+
+
+        ''' Converts values from decimal to binary representation.
+
+        Parameters
+        ----------
+        s : list of ints
+            Input decimal values.
+
+        Returns
+        -------
+        b : list of ints
+            Output binary sequences.
+        '''
+
         b = []
         for i in s:
             a = bin(i)[2:]
@@ -337,6 +352,10 @@ class PSKModem(Modem):
 
 
     def plot_const(self):
+        
+        ''' Plots signal constellation
+        '''
+        
         const = self.code_book
         fig = plt.figure(figsize=(6, 4), dpi=150)
         for i in list(const):
@@ -404,9 +423,13 @@ class QAMModem(Modem):
 
         self.zeros, self.ones = self.llr_preparation()  
 
-        # TODO: fix the Gray case
 
     def __qam_symbols(self):
+
+
+        ''' Creates M-QAM complex symbols.
+        '''        
+
         c = np.sqrt(self.M)
         b = -2*(np.array(self.m) % c) + c - 1
         a = 2*np.floor(np.array(self.m) / c) - c + 1 
@@ -414,12 +437,30 @@ class QAMModem(Modem):
         return  s
 
     def __gray_qam_arange(self):
+
+        ''' Rearanges complex coordinates according to Gray coding requirements.
+        '''   
+
         for idx, (key, item) in enumerate(self.code_book.items()):
             if (np.floor(idx / np.sqrt(self.M)) % 2) != 0:
                 self.code_book[key] = np.conj(item)
 
 
     def de2bin(self, s):
+
+        ''' Converts values from decimal to binary representation.
+
+        Parameters
+        ----------
+        s : list of ints
+            Input decimal values.
+
+        Returns
+        -------
+        b : list of ints
+            Output binary sequences.
+        '''
+
         b = []
         for i in s:
             a = bin(i)[2:]
@@ -430,6 +471,9 @@ class QAMModem(Modem):
 
 
     def plot_const(self):
+
+        ''' Plots signal constellation
+        '''
 
         if self.M <= 16:
             limits = np.log2(self.M)
