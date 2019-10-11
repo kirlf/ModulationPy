@@ -17,7 +17,6 @@ class Modem:
     '''
     
         SERVING METHODS
-
     '''
 
     def __gray_encoding(self, s):
@@ -28,12 +27,10 @@ class Modem:
         ----------
         s : list of ints
             Input binary sequence to be encoded by Gray.
-
         Returns
         -------
         s2: list of ints
             Output encoded by Gray sequence.
-
         '''
 
         s2 = []
@@ -54,20 +51,16 @@ class Modem:
             ''' Creates dictionary where 
                 keys are decimal or binary values and
                 values are complex values
-
             Parameters
             ----------
             m : list of ints
                 Decimal or binary sequence to be key of dictionary.
-
             s: list of ints
                 Complex envelope to be values of dictionary.
-
             Returns
             -------
             dict_out : dict
                 Output dictionary.        
-
             '''
             
             dict_out = {}
@@ -76,47 +69,37 @@ class Modem:
             return dict_out
 
 
-    def create_constellation(self, m, s, modul_mode=True):
+    def create_constellation(self, m, s):
 
         ''' Creates signal constellation.
-
         Parameters
         ----------
         m : list of ints
             Possible decimal values of the signal constellation (0 ... M-1).
-
         s : list of complex values
             Possible coordinates of the signal constellation.
-
         Returns
         -------
         dict_out: dict
             Output dictionary where 
             key is the bit sequence or decimal value and 
             value is the complex coordinate.         
-
         '''
 
         dict_out = {}
-        if modul_mode == True:
-            if self.bin_input == False and self.gray_map == False:
-                dict_out = self.__dict_make(m, s)
-            elif self.bin_input == False and self.gray_map == True:
-                mg = self.__gray_encoding(m)
-                dict_out = self.__dict_make(mg, s)
-            elif self.bin_input == True and self.gray_map == False:
-                mb = self.de2bin(m)
-                dict_out = self.__dict_make(mb, s)
-            elif self.bin_input == True and self.gray_map == True:
-                mg = self.__gray_encoding(m)
-                mgb = self.de2bin(mg)
-                dict_out = self.__dict_make(mgb, s)
-        elif modul_mode == False:
-            if self.gray_map == False:
-                dict_out = self.__dict_make(m, s)
-            elif self.gray_map == True:
-                mg = self.__gray_encoding(m)
-                dict_out = self.__dict_make(mg, s)
+        if self.bin_input == False and self.gray_map == False:
+            dict_out = self.__dict_make(m, s)
+        elif self.bin_input == False and self.gray_map == True:
+            mg = self.__gray_encoding(m)
+            dict_out = self.__dict_make(mg, s)
+        elif self.bin_input == True and self.gray_map == False:
+            mb = self.de2bin(m)
+            dict_out = self.__dict_make(mb, s)
+        elif self.bin_input == True and self.gray_map == True:
+            mg = self.__gray_encoding(m)
+            mgb = self.de2bin(mg)
+            dict_out = self.__dict_make(mgb, s)
+
         return dict_out
 
     def llr_preparation(self):
@@ -124,19 +107,15 @@ class Modem:
 
         ''' Creates the coordinates 
         where either zeros or ones can be placed in the signal constellation..
-
-
         Returns
         -------
         zeros : list of lists of complex values 
             The coordinates where zeros can be placed in the signal constellation.
-
         ones : list of lists of complex values 
             The coordinates where ones can be placed in the signal constellation.        
-
         '''
 
-        code_book_demod = self.create_constellation(self.m, self.s, modul_mode=False)
+        code_book_demod = self.code_book
         
         zeros = []  
         ones = []
@@ -147,10 +126,16 @@ class Modem:
         b = self.de2bin(self.m)
         for idx, n in enumerate(b):
             for ind, m in enumerate(n):
-                if m == '0':
-                    zeros[ind].append(code_book_demod[idx])
+                if self.bin_input == True:
+                    if m == '0':
+                        zeros[ind].append(code_book_demod[n])
+                    else:
+                        ones[ind].append(code_book_demod[n])
                 else:
-                    ones[ind].append(code_book_demod[idx])
+                    if m == '0':
+                        zeros[ind].append(code_book_demod[idx])
+                    else:
+                        ones[ind].append(code_book_demod[idx])
         return zeros, ones
 
 
@@ -158,23 +143,19 @@ class Modem:
     '''
     
         MODULATION ALGORITHMS
-
     '''
 
     def __bin_modulate(self, x):
 
         ''' Modulates binary stream.
-
         Parameters
         ----------
         x : 1-D ndarray of ints
             Binary stream to be modulated.
-
         Returns
         -------
         modulated : list of complex values
             Modulated symbols (signal envelope).
-
         '''
         modulated = []
         m = []
@@ -191,17 +172,14 @@ class Modem:
     def __dec_modulate(self, x):
 
         ''' Modulates decimal stream.
-
         Parameters
         ----------
         x : 1-D ndarray of ints
             Decimal stream to be modulated.
-
         Returns
         -------
         modulated : list of complex values
             Modulated symbols (signal envelope).
-
         '''
         modulated = []
         for a in x:
@@ -213,7 +191,6 @@ class Modem:
     '''
     
         DEMODULATION ALGORITHMS
-
     '''
     
     def __ApproxLLR(self, x, noise_var):
@@ -224,21 +201,17 @@ class Modem:
         ----------
         x : 1-D ndarray of complex values
             Received complex-valued symbols to be demodulated.
-
         noise_var: float
             Additive noise variance.
-
         Returns
         -------
         result: 1-D ndarray of floats
             Output LLRs.
-
         Reference:
             [1] Viterbi, A. J., “An Intuitive Justification and a 
                 Simplified Implementation of the MAP Decoder for Convolutional Codes,”
                 IEEE Journal on Selected Areas in Communications, 
                 vol. 16, No. 2, pp 260–264, Feb. 1998
-
         '''
 
         zeros = self.zeros
@@ -263,23 +236,19 @@ class Modem:
     '''
     
         METHODS TO EXECUTE
-
     '''
     
     def modulate(self, x):
 
         ''' Modulates binary or decimal stream.
-
         Parameters
         ----------
         x : 1-D ndarray of ints
             Decimal or binary stream to be modulated.
-
         Returns
         -------
         modulated : 1-D array of complex values
             Modulated symbols (signal envelope).
-
         '''
         
         if self.bin_input == True: 
@@ -291,20 +260,16 @@ class Modem:
     def demodulate(self, x, noise_var=1.):
 
         ''' Demodulates complex symbols.
-
         Parameters
         ----------
         x : 1-D ndarray of complex symbols
             Decimal or binary stream to be modulated.
-
         noise_var: float
             Additive noise variance.
-
         Returns
         -------
         result : 1-D array floats
             Demodulated message (LLRs or binary sequence).
-
         '''
 
         if self.soft_decision == True:
@@ -327,12 +292,10 @@ class PSKModem(Modem):
 
 
         ''' Converts values from decimal to binary representation.
-
         Parameters
         ----------
         s : list of ints
             Input decimal values.
-
         Returns
         -------
         b : list of ints
@@ -449,12 +412,10 @@ class QAMModem(Modem):
     def de2bin(self, s):
 
         ''' Converts values from decimal to binary representation.
-
         Parameters
         ----------
         s : list of ints
             Input decimal values.
-
         Returns
         -------
         b : list of ints
