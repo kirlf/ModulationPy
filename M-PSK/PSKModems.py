@@ -2,16 +2,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Modem:
-    def __init__(self, M, gray_map = True, bin_input = True, soft_decision = True):
+    def __init__(self, M, gray_map = True, bin_input = True, soft_decision = True, bin_output = True):
         
         if np.log2(M) != np.round(np.log2(M)):
-            raise ValueError("M should be 2**n, with n=1, 2, 3...")  
+            raise ValueError("M should be 2**n, with n=1, 2, 3...")
+        if soft_decision == True and bin_output == False:
+            raise ValueError("Non-binary output is available only for hard decision") 
         
         self.M = M    
         self.m = [i for i in range(self.M)]    
         self.gray_map = gray_map
         self.bin_input = bin_input
         self.soft_decision = soft_decision
+        self.bin_output = bin_output
         
     
     '''
@@ -67,7 +70,6 @@ class Modem:
             for x, y in zip(m, s):
                 dict_out[x] = y
             return dict_out
-
 
     def create_constellation(self, m, s):
 
@@ -275,13 +277,16 @@ class Modem:
         if self.soft_decision == True:
             result = self.__ApproxLLR(x, noise_var)
         else:
-            result = (np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2                        
+            if self.bin_output == True: 
+                result = (np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2 
+            else:
+                result = self.bin2de((np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2)                      
         return result 
 
     
 class PSKModem(Modem):
-    def __init__(self, M, phi=0, gray_map=True, bin_input=True, soft_decision=True):
-        super().__init__(M, gray_map, bin_input, soft_decision)
+    def __init__(self, M, phi=0, gray_map=True, bin_input=True, soft_decision=True, bin_output = True):
+        super().__init__(M, gray_map, bin_input, soft_decision, bin_output)
         self.phi = phi 
         self.s = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.m)/self.M))
         self.code_book = self.create_constellation(self.m, self.s)
@@ -303,14 +308,37 @@ class PSKModem(Modem):
         '''
 
         b = []
-        for i in s:
-            a = bin(i)[2:]
-            if len(a) < np.log2(self.M):
-                a = int((np.log2(self.M) - len(a)))*'0'+a
+        for m in s:
+            a = np.binary_repr(m, width=int(np.log2(self.M)))
             if np.log2(self.M)%2 == 0:
                 a = a[::-1]
             b.append(a)
         return b
+
+    def bin2de(self, b):
+
+        ''' Converts values from binary to decimal representation.
+        Parameters
+        ----------
+        b : list of ints
+            Input binary values.
+        Returns
+        -------
+        s : list of ints
+            Output decimal values.
+        '''
+
+        s = []
+        m = int(np.log2(self.M))
+        for i in range( int(len(b) / m)):
+            outp = b[i*m:i*m+m]
+            str_o = ''
+            for o in outp:
+                str_o = str_o + str(int(o))
+            if np.log2(self.M)%2 == 0:
+                str_o = str_o[::-1]
+            s.append(int(str_o, 2))
+        return s 
     
 
 
@@ -371,8 +399,8 @@ class PSKModem(Modem):
     
     
 class QAMModem(Modem):
-    def __init__(self, M, gray_map=True, bin_input=True, soft_decision = True):
-        super().__init__(M, gray_map, bin_input, soft_decision)
+    def __init__(self, M, gray_map=True, bin_input=True, soft_decision = True, bin_output = True):
+        super().__init__(M, gray_map, bin_input, soft_decision, bin_output)
         
         if np.sqrt(M) != np.fix(np.sqrt(M)) or np.log2(np.sqrt(M)) != np.fix(np.log2(np.sqrt(M))):
             raise ValueError('M must be a square of a power of 2')
@@ -423,12 +451,33 @@ class QAMModem(Modem):
         '''
 
         b = []
-        for i in s:
-            a = bin(i)[2:]
-            if len(a) < np.log2(self.M):
-                a = int((np.log2(self.M) - len(a)))*'0'+a
+        for m in s:
+            a = np.binary_repr(m, width=int(np.log2(self.M)))
             b.append(a)
         return b
+
+    def bin2de(self, b):
+
+        ''' Converts values from binary to decimal representation.
+        Parameters
+        ----------
+        b : list of ints
+            Input binary values.
+        Returns
+        -------
+        s : list of ints
+            Output decimal values.
+        '''
+
+        s = []
+        m = int(np.log2(self.M))
+        for i in range( int(len(b) / m)):
+            outp = b[i*m:i*m+m]
+            str_o = ''
+            for o in outp:
+                str_o = str_o + str(int(o))
+            s.append(int(str_o, 2))
+        return s 
 
 
     def plot_const(self):
