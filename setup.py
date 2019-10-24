@@ -23,7 +23,7 @@ setup(
     ],
 
     python_requires='>=3.6.4',
-	package_data = { DISTNAME : files },
+    #package_dir = {'': 'src'},
 
     # metadata to display on PyPI
     license=LICENSE,
