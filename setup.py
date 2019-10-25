@@ -7,7 +7,7 @@ MAINTAINER = 'Vladimir Fadeev'
 MAINTAINER_EMAIL = 'vovenur@gmail.com'
 URL = 'https://github.com/kirlf/ModulationPy'
 LICENSE = 'BSD 3-Clause'
-VERSION = '0.1'
+VERSION = '0.1.1'
 
 
 setup(
@@ -23,7 +23,7 @@ setup(
     ],
 
     python_requires='>=3.6.4',
-    #package_dir = {'': 'src'},
+    package_dir = {'': 'src'},
 
     # metadata to display on PyPI
     license=LICENSE,
@@ -36,7 +36,7 @@ setup(
 
     classifiers=[
         'License :: OSI Approved :: BSD License',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Telecommunications Industry',
         'Operating System :: Unix',

@@ -1,6 +1,6 @@
 Metadata-Version: 1.2
 Name: ModulationPy
-Version: 0.1.1
+Version: 0.1
 Summary: Digital Linear Modems
 Home-page: https://github.com/kirlf/ModulationPy
 Author: Vladimir Fadeev
@@ -12,7 +12,7 @@ Description: * Digital modulation
 Keywords: communications digital modulation demodulation psk qam
 Platform: UNKNOWN
 Classifier: License :: OSI Approved :: BSD License
-Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.5
 Classifier: Intended Audience :: Science/Research
 Classifier: Intended Audience :: Telecommunications Industry
 Classifier: Operating System :: Unix
