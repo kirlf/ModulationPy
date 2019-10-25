@@ -13,7 +13,7 @@ VERSION = '0.1.1'
 setup(
     name="ModulationPy",
     version=VERSION,
-    packages=find_packages(),
+    #packages=find_packages(),
 
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
