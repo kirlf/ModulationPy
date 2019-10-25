@@ -1,4 +1,4 @@
-from src.ModulationPy import *
+from ModulationPy.ModulationPy import *
 
 M = [4, 16, 64, 256, 1024]
 gm = [True, False]
