@@ -1,0 +1,6 @@
+[run]
+branch = True
+source = ModulationPy
+include = */ModulationPy/*
+omit =
+    */setup.py
