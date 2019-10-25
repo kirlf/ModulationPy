@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.com/kirlf/ModulationPy.svg?branch=master)](https://travis-ci.com/kirlf/ModulationPy)
+
+
+
 # ModulationPy
 
 Digital linear modems: M-PSK and M-QAM.
