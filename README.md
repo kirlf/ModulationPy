@@ -1,5 +1,7 @@
 [![Build Status](https://travis-ci.com/kirlf/ModulationPy.svg?branch=master)](https://travis-ci.com/kirlf/ModulationPy)
 [![PyPi](https://badge.fury.io/py/ModulationPy.svg)](https://pypi.org/project/ModulationPy/)
+[![Docs](https://readthedocs.org/projects/modulationpy/badge/?version=latest)](https://modulationpy.readthedocs.io/en/latest/#)
+
 
 
 
