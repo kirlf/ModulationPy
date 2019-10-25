@@ -1,9 +1,0 @@
-README.md
-setup.py
-ModulationPy/ModulationPy.py
-ModulationPy/__init__.py
-ModulationPy.egg-info/PKG-INFO
-ModulationPy.egg-info/SOURCES.txt
-ModulationPy.egg-info/dependency_links.txt
-ModulationPy.egg-info/requires.txt
-ModulationPy.egg-info/top_level.txt
