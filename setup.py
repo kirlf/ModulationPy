@@ -24,6 +24,7 @@ setup(
 
     python_requires='>=3.6.4',
     package_dir = {'': 'src'},
+    packages = ['ModulationPy'],
 
     # metadata to display on PyPI
     license=LICENSE,
