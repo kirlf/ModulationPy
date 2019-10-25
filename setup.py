@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 DISTNAME = 'src'
 DESCRIPTION = 'Digital Linear Modems'
@@ -7,14 +7,13 @@ MAINTAINER = 'Vladimir Fadeev'
 MAINTAINER_EMAIL = 'vovenur@gmail.com'
 URL = 'https://github.com/kirlf/ModulationPy'
 LICENSE = 'BSD 3-Clause'
-VERSION = '0.1.1'
+VERSION = '0.1.4'
 
 
 setup(
     name="ModulationPy",
     version=VERSION,
-    #packages=find_packages(),
-
+    
     # Project uses reStructuredText, so ensure that the docutils get
     # installed or upgraded on the target machine
         install_requires=[
@@ -23,7 +22,7 @@ setup(
     ],
 
     python_requires='>=3.6.4',
-    package_dir = {'': 'src'},
+    #package_dir = {'': 'src'},
     packages = ['ModulationPy'],
 
     # metadata to display on PyPI

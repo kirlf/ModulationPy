@@ -1,4 +1,6 @@
 setup.py
+src/ModulationPy/ModulationPy.py
+src/ModulationPy/__init__.py
 src/ModulationPy.egg-info/PKG-INFO
 src/ModulationPy.egg-info/SOURCES.txt
 src/ModulationPy.egg-info/dependency_links.txt
