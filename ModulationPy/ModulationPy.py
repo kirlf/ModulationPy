@@ -1,3 +1,5 @@
+# coding: utf-8
+
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -210,12 +212,13 @@ class Modem:
         result: 1-D ndarray of floats
             Output LLRs.
         Reference:
-            [1] Viterbi, A. J., “An Intuitive Justification and a 
-                Simplified Implementation of the MAP Decoder for Convolutional Codes,”
+            [1] Viterbi, A. J., "An Intuitive Justification and a 
+                Simplified Implementation of the MAP Decoder for Convolutional Codes,"
                 IEEE Journal on Selected Areas in Communications, 
                 vol. 16, No. 2, pp 260–264, Feb. 1998
+            
         '''
-
+        
         zeros = self.zeros
         ones = self.ones
         LLR = []
