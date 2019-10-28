@@ -9,7 +9,7 @@ Welcome to ModulationPy's documentation!
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 5
 
    ModulationPy
 
