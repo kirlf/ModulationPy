@@ -1,0 +1,2 @@
+.. automodule:: ModulationPy.ModulationPy
+    :members:

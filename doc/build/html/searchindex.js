@@ -1,1 +1,1 @@
-Search.setIndex({envversion:49,filenames:["index"],objects:{},objnames:{},objtypes:{},terms:{content:0,index:0,modul:0,page:0,search:0},titles:["Welcome to ModulationPy&#8217;s documentation!"],titleterms:{document:0,indice:0,modulationpi:0,tabl:0,welcom:0}})
+Search.setIndex({envversion:49,filenames:["ModulationPy","index"],objects:{},objnames:{},objtypes:{},terms:{content:1,index:1,modul:1,page:1,search:1},titles:["&lt;no title&gt;","Welcome to ModulationPy&#8217;s documentation!"],titleterms:{document:1,indice:1,modulationpi:1,tabl:1,welcom:1}})
