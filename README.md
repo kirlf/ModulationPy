@@ -2,9 +2,6 @@
 [![PyPi](https://badge.fury.io/py/ModulationPy.svg)](https://pypi.org/project/ModulationPy/)
 [![Coverage](https://coveralls.io/repos/kirlf/ModulationPy/badge.svg)](https://coveralls.io/r/kirlf/ModulationPy)
 
-
-
-
 # ModulationPy
 
 Digital linear modems: M-PSK and M-QAM.
@@ -39,6 +36,27 @@ $ python3 setup.py install
 - **M-QAM**: **Q**uadratured **A**mplitude **M**odulation
 
 where **M** is the modulation order.
+
+M-PSK modem is available in ```class PSKModem``` with the following parameters:
+
+| Parametr | Possible values | Description |
+| ------------- |:-------------| :-----|
+| ``` M ```      | positive integer values power of 2 | Modulation order. Specify the number of points in the signal constellation as scalar value that is a positive integer power of two.|
+| ```phi``` | float values | Phase rotation. Specify the phase offset of the signal constellation, in radians, as a real scalar value. The default is 0.|
+| ```gray_map``` | ```True``` or ```False``` | Specifies mapping rule. If parametr is ```True``` the modem works with Gray mapping, else it works with Binary mapping. The default is ```True```.|
+| ```bin_input``` | ```True``` or ```False```| Specify whether the input of ```modulate()``` method is bits or integers. When you set this property to ```True```, the ```modulate()``` method input requires a column vector of bit values. The length of this vector must an integer multiple of log2(M). The default is ```True```.|
+| ```soft_decision``` | ```True``` or ```False``` | Specify whether the output values of ```demodulate()``` method is demodulated as hard or soft decisions. If parametr is ```True``` the output will be Log-likelihood ratios (LLR's), else binary symbols. The default is ```True```.|
+| ```bin_output``` | ```True``` or ```False```|Specify whether the output of ```demodulate()``` method is bits or integers. The default is ```True```.|
+
+M-QAM modem is available in ```class QAMModem``` with the following parameters:
+
+| Parametr | Possible values | Description |
+| ------------- |:-------------| :-----|
+| ``` M ```      | positive integer values power of 2 | Modulation order. Specify the number of points in the signal constellation as scalar value that is a positive integer power of two.|
+| ```gray_map``` | ```True``` or ```False``` | Specifies mapping rule. If parametr is ```True``` the modem works with Gray mapping, else it works with Binary mapping. The default is ```True```.|
+| ```bin_input``` | ```True``` or ```False```| Specify whether the input of ```modulate()``` method is bits or integers. When you set this property to ```True```, the ```modulate()``` method input requires a column vector of bit values. The length of this vector must an integer multiple of log2(M). The default is ```True```.|
+| ```soft_decision``` | ```True``` or ```False``` | Specify whether the output values of ```demodulate()``` method is demodulated as hard or soft decisions. If parametr is ```True``` the output will be Log-likelihood ratios (LLR's), else binary symbols. The default is ```True```.|
+| ```bin_output``` | ```True``` or ```False```|Specify whether the output of ```demodulate()``` method is bits or integers. The default is ```True```.|
 
 ## How to use?
 
