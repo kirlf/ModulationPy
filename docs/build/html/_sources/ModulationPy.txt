@@ -1,4 +1,4 @@
-.. py:module:: ModulationPy
+.. :automodule:: ModulationPy
 
-.. py:class:: QAMModem
-    .. py:method:: plot_const(), modulate(), demodulate()
+.. :autoclass:: QAMModem
+    .. ::member:: plot_const, modulate, demodulate
