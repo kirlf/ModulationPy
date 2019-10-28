@@ -54,8 +54,8 @@ QAMModem(16, gray_map=True, bin_input=False, soft_decision = False, bin_output =
 
 ```
 
-<img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/doc/img/qpsk_signconst.PNG" width="600" />
-<img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/doc/img/qam_signconst.PNG" width="600" />
+<img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/qpsk_signconst.PNG" width="600" />
+<img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/qam_signconst.PNG" width="600" />
 
 2. To modulate and demodulate use ```modulate()``` and ```demodulate()``` methods.
 
