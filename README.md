@@ -19,7 +19,7 @@ See: [Basics of linear digital modulations](https://speakerdeck.com/kirlf/linear
 Released version on PyPi:
 
 ``` bash
-$ pip install ModulationPy==0.1.4
+$ pip install ModulationPy
 ```
 
 To build by sources, clone from github and install as follows::
