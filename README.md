@@ -60,19 +60,43 @@ M-QAM modem is available in ```class QAMModem``` with the following parameters:
 
 ## How to use?
 
-1) To show signal constellation use ``` plot_const()``` method:
+### 1. Initialazation.
 
-``` python
+E.g., **QPSK** with the pi/4 phase offset, binary input and Gray mapping:  
+
+```python
 from ModulationPy import PSKModem, QAMModem
 import numpy as np
 
-PSKModem(4, np.pi/4,  gray_map=True, bin_input=True, soft_decision = False, bin_output = True).plot_const()
-QAMModem(16, gray_map=True, bin_input=False, soft_decision = False, bin_output = False).plot_const()
+modem = PSKModem(4, np.pi/4,
+                 gray_map=True,
+                 bin_input=True)
+```
+
+To show signal constellation use the ``` plot_const()``` method:
+
+```python
+
+modem.plot_const()
 
 ```
 
 <img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/qpsk_signconst.PNG" width="600" />
+
+
+E.g. **16-QAM** with decimal input and Gray mapping
+
+```python
+modem = QAMModem(16,
+                 gray_map=True, 
+                 bin_input=False)
+
+modem.plot_const()
+```
+
 <img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/qam_signconst.PNG" width="600" />
+
+
 
 2. To modulate and demodulate use ```modulate()``` and ```demodulate()``` methods.
 
