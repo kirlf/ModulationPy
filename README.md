@@ -11,8 +11,33 @@ Digital linear modems: M-PSK and M-QAM.
 The main idea is to develop a Python module that allows replacing related to **digital linear modulations** MatLab/Octave functions and objects.  This project is inspired by [CommPy](https://github.com/veeresht/CommPy) open-source project. 
 
 ## Theory basics
-  
-See: [Basics of linear digital modulations](https://speakerdeck.com/kirlf/linear-digital-modulations) (slides).
+
+### 1. Linearity
+
+Linear modulation schemes have a canonical form \[1\]:
+
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20s(t)%20%3D%20s_I(t)cos(2%5Cpi%20f_c%20t)%20-%20s_Q(t)cos(2%5Cpi%20f_c%20t)%20%5Cqquad%20(1)" alt=" s(t) = s_I(t)cos(2\pi f_c t) - s_Q(t)cos(2\pi f_c t) \qquad (1)" /></p>
+
+where <img src="https://tex.s2cms.ru/svg/s_I(t)" alt="s_I(t)" /> is the In-phase part, <img src="https://tex.s2cms.ru/svg/s_Q(t)" alt="s_Q(t)" /> is the Quadrature part, <img src="https://tex.s2cms.ru/svg/f_c" alt="f_c" /> is the carrier frequency, and <img src="https://tex.s2cms.ru/svg/t" alt="t" /> is the time moment. In-phase and Quadrature parts are low-pass signals that **linearly** correlate with an information signal. 
+
+### 2. Baseband representation
+
+Modulation scheme can also be modeled without consideration of the carrier frequency and bit duration. The baseband analogs can be used for research due to the main properties depend on the envelope (complex symbols).
+
+### 3. Modulation order
+
+Modulation order means number of possible modulation symbols. The number of bits per modulation symbol
+depend on the modulation order:
+
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20N%20%3D%20log_2(M)%20%5Cqquad(2)%20" alt=" N = log_2(M) \qquad(2) " /></p>
+
+Modulation order relates to **gross bit rate** concept:
+
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20R_b%20%3D%20R_slog_2(N)%20%5Cqquad(3)%20" alt=" R_b = R_slog_2(N) \qquad(3) " /></p>
+
+where <img src="https://tex.s2cms.ru/svg/R_s" alt="R_s" /> is the baud or symbol rate. Baud rate usually relates to the coherence bandwidth <img src="https://tex.s2cms.ru/svg/B_c" alt="B_c" /> (see more in \[2\]).
+
+> See more in ["Basics of linear digital modulations"](https://speakerdeck.com/kirlf/linear-digital-modulations) (slides).
 
 ## Installation
 
@@ -101,3 +126,9 @@ modem.plot_const()
 2. To modulate and demodulate use ```modulate()``` and ```demodulate()``` methods.
 
 [EXAMPLE in progress]
+
+
+## References
+
+1. Haykin S. Communication systems. – John Wiley & Sons, 2008. — p. 93 
+2. Goldsmith A. Wireless communications. – Cambridge university press, 2005. – p. 88-92
