@@ -4,11 +4,11 @@
 
 # ModulationPy
 
-Digital linear modems: M-PSK and M-QAM.
+Digital baseband linear modems: M-PSK and M-QAM.
 
 ## Motivation
 
-The main idea is to develop a Python module that allows replacing related to **digital linear modulations** MatLab/Octave functions and objects.  This project is inspired by [CommPy](https://github.com/veeresht/CommPy) open-source project. 
+The main idea is to develop a Python module that allows replacing related to **baseband digital linear modulations** MatLab/Octave functions and objects.  This project is inspired by [CommPy](https://github.com/veeresht/CommPy) open-source project. 
 
 ## Theory basics
 
