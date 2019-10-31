@@ -47,7 +47,7 @@ Released version on PyPi:
 $ pip install ModulationPy
 ```
 
-To build by sources, clone from github and install as follows::
+To build by sources, clone from github and install as follows:
 
 ```bash
 $ git clone https://github.com/kirlf/ModulationPy.git
