@@ -99,7 +99,7 @@ M-QAM modem is available in ```class QAMModem``` with the following parameters:
 
 ## How to use?
 
-### 1. Initialazation.
+### 1. Initialization.
 
 E.g., **QPSK** with the pi/4 phase offset, binary input and Gray mapping:  
 
@@ -148,7 +148,92 @@ The method ```demodulate()``` has the two input arguments:
 
 - data stream to be demodulated (```1-D ndarray of complex symbols```) and
 
-- additive noise variance (```float```).
+- additive noise variance (```float```, default is 1.0).
+
+E.g., QPSK (binary input/otput):
+
+```python
+
+import numpy as np
+from ModulationPy import PSKModem
+
+modem = PSKModem(4, np.pi/4, 
+                 bin_input=True,
+                 soft_decision=False,
+                 bin_output=True)
+
+msg = np.array([0, 0, 0, 1, 1, 0, 1, 1]) # input message
+
+modulated = modem.modulate(msg) # modulation
+demodulated = modem.demodulate(modulated) # demodulation
+
+print("Modulated message:\n"+str(modulated))
+print("Demodulated message:\n"+str(demodulated))
+
+>>> Modulated message:
+[ 0.70710678+0.70710678j  0.70710678-0.70710678j -0.70710678+0.70710678j
+ -0.70710678-0.70710678j]
+ 
+ >>> Demodulated message:
+[0. 0. 0. 1. 1. 0. 1. 1.]
+ 
+```
+
+E.g., QPSK (decimal input/otput):
+
+``` python
+
+import numpy as np
+from ModulationPy import PSKModem
+
+modem = PSKModem(4, np.pi/4, 
+                 bin_input=False,
+                 soft_decision=False,
+                 bin_output=False)
+
+msg = np.array([0, 1, 2, 3]) # input message
+
+modulated = modem.modulate(msg) # modulation
+demodulated = modem.demodulate(modulated) # demodulation
+
+print("Modulated message:\n"+str(modulated))
+print("Demodulated message:\n"+str(demodulated))
+
+>>> Modulated message:
+[ 0.70710678+0.70710678j -0.70710678+0.70710678j  0.70710678-0.70710678j
+ -0.70710678-0.70710678j]
+ 
+ >>> Demodulated message:
+[0, 1, 2, 3]
+
+```
+
+E.g., 16-QAM (decimal input/output):
+
+``` python
+
+import numpy as np
+from ModulationPy import QAMModem
+
+modem = PSKModem(16, 
+                 bin_input=False,
+                 soft_decision=False,
+                 bin_output=False)
+
+msg = np.array([i for i in range(16)]) # input message
+
+modulated = modem.modulate(msg) # modulation
+demodulated = modem.demodulate(modulated) # demodulation
+
+print("Demodulated message:\n"+str(demodulated))
+
+>>> Demodulated message:
+[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+
+```
+
+
+### 3. Bit-error ratio performance
 
 Let us demonstrate this at example with the following system model:
 
