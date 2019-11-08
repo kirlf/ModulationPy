@@ -62,6 +62,8 @@ $ python3 setup.py install
 
 where **M** is the modulation order.
 
+### 1. M-PSK
+
 M-PSK modem is available in ```class PSKModem``` with the following parameters:
 
 | Parametr | Possible values | Description |
@@ -72,6 +74,18 @@ M-PSK modem is available in ```class PSKModem``` with the following parameters:
 | ```bin_input``` | ```True``` or ```False```| Specify whether the input of ```modulate()``` method is bits or integers. When you set this property to ```True```, the ```modulate()``` method input requires a column vector of bit values. The length of this vector must an integer multiple of log2(M). The default is ```True```.|
 | ```soft_decision``` | ```True``` or ```False``` | Specify whether the output values of ```demodulate()``` method is demodulated as hard or soft decisions. If parametr is ```True``` the output will be Log-likelihood ratios (LLR's), else binary symbols. The default is ```True```.|
 | ```bin_output``` | ```True``` or ```False```|Specify whether the output of ```demodulate()``` method is bits or integers. The default is ```True```.|
+
+The mapping of into the modulation symbols is done by the [following formula](https://www.mathworks.com/help/comm/ref/comm.pskmodulator-system-object.html?s_tid=doc_ta):
+
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20r%20%3D%20exp(j%5Cphi%20%2B%20j2%5Cpi%20m%2FM)" alt=" r = exp(j\phi + j2\pi m/M)" /></p>
+
+where <img src="https://tex.s2cms.ru/svg/%20%5Cphi%20" alt=" \phi " /> is the phase rotation, <img src="https://tex.s2cms.ru/svg/%20m%20" alt=" m " /> is the decimal input symbol, and <img src="https://tex.s2cms.ru/svg/%20M%20" alt=" M " /> is the modulation order.
+
+The input <img src="https://tex.s2cms.ru/svg/%20m%20" alt=" m " /> should be in range between *0* and *M-1*.
+
+If the input is binary, the conversion from binary to decimal should be done before. Therefore, additional supportive method ``` __de2bin() ``` is implemented. This method has an additional heuristic: the bit sequence of "even" modulation schemes (e.g., QPSK) should be read right to left. 
+
+### 2. M-QAM
 
 M-QAM modem is available in ```class QAMModem``` with the following parameters:
 
@@ -263,3 +277,4 @@ It works.  Well done.
 
 1. Haykin S. Communication systems. – John Wiley & Sons, 2008. — p. 93 
 2. Goldsmith A. Wireless communications. – Cambridge university press, 2005. – p. 88-92
+3. Link Budget Analysis: Digital Modulation, Part 3 www.AtlantaRF.com
