@@ -75,9 +75,9 @@ M-PSK modem is available in ```class PSKModem``` with the following parameters:
 | ```soft_decision``` | ```True``` or ```False``` | Specify whether the output values of ```demodulate()``` method is demodulated as hard or soft decisions. If parametr is ```True``` the output will be Log-likelihood ratios (LLR's), else binary symbols. The default is ```True```.|
 | ```bin_output``` | ```True``` or ```False```|Specify whether the output of ```demodulate()``` method is bits or integers. The default is ```True```.|
 
-The mapping of into the modulation symbols is done by the [following formula](https://www.mathworks.com/help/comm/ref/comm.pskmodulator-system-object.html?s_tid=doc_ta):
+The mapping of into the modulation symbols is done by the following formula \[3\]:
 
-<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20r%20%3D%20exp(j%5Cphi%20%2B%20j2%5Cpi%20m%2FM)" alt=" r = exp(j\phi + j2\pi m/M)" /></p>
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20r%20%3D%20exp(j%5Cphi%20%2B%20j2%5Cpi%20m%2FM)%7D%20%5Cqquad%20(4)%0A" alt=" r = exp(j\phi + j2\pi m/M)" /></p>
 
 where <img src="https://tex.s2cms.ru/svg/%20%5Cphi%20" alt=" \phi " /> is the phase rotation, <img src="https://tex.s2cms.ru/svg/%20m%20" alt=" m " /> is the decimal input symbol, and <img src="https://tex.s2cms.ru/svg/%20M%20" alt=" M " /> is the modulation order.
 
@@ -96,6 +96,14 @@ M-QAM modem is available in ```class QAMModem``` with the following parameters:
 | ```bin_input``` | ```True``` or ```False```| Specify whether the input of ```modulate()``` method is bits or integers. When you set this property to ```True```, the ```modulate()``` method input requires a column vector of bit values. The length of this vector must an integer multiple of log2(M). The default is ```True```.|
 | ```soft_decision``` | ```True``` or ```False``` | Specify whether the output values of ```demodulate()``` method is demodulated as hard or soft decisions. If parametr is ```True``` the output will be Log-likelihood ratios (LLR's), else binary symbols. The default is ```True```.|
 | ```bin_output``` | ```True``` or ```False```|Specify whether the output of ```demodulate()``` method is bits or integers. The default is ```True```.|
+
+Now the QAM modulation is designed as in **qammod** Octave function \[4\]. It requires only "even" (in sense, that ```log2(M)``` is even) modulation schemes (4-QAM, 16-QAM, 64-QAM and so on).
+
+Actually, this fact has its own reasons:
+- the modulation algorithm for these modulation schemes is universal and simple;
+- there are no "odd" modulation schemes in [popular wireless communication standards](https://www.quora.com/What-different-modulation-techniques-are-used-in-1G-2G-3G-4G-and-5G).
+
+To implement correct Gray mapping the additional heuristic is used: the even "columns" in the signal constellation is complex conjugated.
 
 ## How to use?
 
@@ -232,6 +240,11 @@ print("Demodulated message:\n"+str(demodulated))
 
 ```
 
+Why soft decision was not tested and demonstarted? [MathWorks company provides](https://www.mathworks.com/help/comm/ref/mpskdemodulatorbaseband.html) several algorithms to demodulate BPSK, QPSK, 8-PSK and other M-PSK modulations. To reduce the number of implemented schemes the following way is used in our project:
+- calculate LLRs (soft decision)
+- map LLR to bits according to the sign of LLR (inverse of NRZ) 
+
+So, this works. We guess the complexity issues are not the critical part due to hard output demodulators are not so popular. This phenomenon depends on channel decoders properties: e.g., Convolutional codes, Turbo convolutional codes and LDPC codes work better with LLR.
 
 ### 3. Bit-error ratio performance
 
@@ -241,9 +254,9 @@ Let us demonstrate this at example with the following system model:
 
 *Fig. 1. The structural scheme of the test communication model.*
 
-The simulation results will be compared with theoretical curves \[3\]:
+The simulation results will be compared with theoretical curves \[5\]:
 
-<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_b%20%3D%20%5Cfrac%7Berfc%20%5Cleft(%20%5Csqrt%7Blog_2(M)%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Csin%5Cleft(%20%5Cfrac%7B%5Cpi%7D%7BM%7D%20%5Cright)%20%5Cright)%7D%7Blog_2(M)%7D%20%5Cqquad%20(4)%0A" alt=" 
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_b%20%3D%20%5Cfrac%7Berfc%20%5Cleft(%20%5Csqrt%7Blog_2(M)%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Csin%5Cleft(%20%5Cfrac%7B%5Cpi%7D%7BM%7D%20%5Cright)%20%5Cright)%7D%7Blog_2(M)%7D%20%5Cqquad%20(5)%0A" alt=" 
 P_b = \frac{erfc \left( \sqrt{log_2(M)\frac{E_b}{N_o}}\sin\left( \frac{\pi}{M} \right) \right)}{log_2(M)}
 " /></p>
 
@@ -251,8 +264,8 @@ where <img src="https://tex.s2cms.ru/svg/M%20%3E4%20" alt="M &gt;4 " />, <img sr
 
 In case of BPSK and QPSK the following formula should be used for error probability:
 
-<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_%7Bb%2C%20BQ%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7Derfc%20%5Cleft(%20%5Csqrt%7B%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Cright)%7D%20%5Cqquad%20(5)%0A" alt=" 
-P_{b, BQ} = \frac{1}{2}erfc \left( \sqrt{\frac{E_b}{N_o}}\right)} \qquad (5)
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_%7Bb%2C%20BQ%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7Derfc%20%5Cleft(%20%5Csqrt%7B%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Cright)%7D%20%5Cqquad%20(6)%0A" alt=" 
+P_{b, BQ} = \frac{1}{2}erfc \left( \sqrt{\frac{E_b}{N_o}}\right)} \qquad (6)
 " /></p>
 
 The source code of the simulation is presented bellow:
@@ -354,12 +367,46 @@ plt.savefig('psk_ber.png')
 
 <img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/psk_ber.png" width="750" />
 
-It works.  Well done.
+> TODO: Make the same with the ```QAMModem class```.
 
+The dismatchings are appeared cause of small number of averages. Anyway, it works. 
 
+### 3. Execution time performance
+
+To demonstrate execution time performance let us comparate our package with another implementation, e.g. with the mentioned above [CommPy](https://github.com/veeresht/CommPy).
+
+The demodulation algorithm is developed according to following fomula in our project \[6\],\[7\]:
+
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20L(b)%20%3D%20-%5Cfrac%7B1%7D%7B%5Csigma%5E2%7D%20%5Cleft(%20%5Cmin_%7Bs%20%5Cepsilon%20S_0%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%20%20-%20%5Cmin_%7Bs%20%5Cepsilon%20S_1%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%5Cright)%20%5Cqquad(7)" alt=" L(b) = -\frac{1}{\sigma^2} \left( \min_{s \epsilon S_0} \left( (x - s_x)^2 + (y - s_y)^2 \right)  - \min_{s \epsilon S_1} \left( (x - s_x)^2 + (y - s_y)^2 \right)\right) \qquad(7)" /></p>
+
+The decision was pre-verified in [this simulation](https://www.mathworks.com/matlabcentral/fileexchange/72392-exact-vs-approximate-llr-calculation?s_tid=prof_contriblnk). 
+
+Comparison information:
+
+- The script: [CommPy-vs-ModulationPy.py](https://github.com/kirlf/ModulationPy/blob/master/docs/CommPy-vs-ModulationPy.py)
+- Platform: https://jupyter.org/try (Classic Notebook)
+- The frame length: 10 000 (bits)
+- The number of trials: 10 000
+
+Results:
+
+| Method (package)       | Average execution time (ms)|
+| ------------- |:-------------:| 
+| modulation (ModulationPy)    | 17.09 |
+| modulation (CommPy)      |  15.91     |   
+| demodulation (ModulationPy)    | 7.66 |
+| demodulation (CommPy)      |    310.81   |   
+
+> TODO: Make the same with the ```QAMModem class```.
+
+Yes, I admit that our implementation is slower than MatLab blocks and functions (see ["Examples"](https://ch.mathworks.com/matlabcentral/fileexchange/72860-fast-qpsk-implementation?s_tid=prof_contriblnk)). However, I believe that this is a good start!
 
 ## References
 
 1. Haykin S. Communication systems. – John Wiley & Sons, 2008. — p. 93 
 2. Goldsmith A. Wireless communications. – Cambridge university press, 2005. – p. 88-92
-3. Link Budget Analysis: Digital Modulation, Part 3 www.AtlantaRF.com
+3. MathWorks: comm.PSKModulator (https://www.mathworks.com/help/comm/ref/comm.pskmodulator-system-object.html?s_tid=doc_ta)
+4. Octave: qammod (https://octave.sourceforge.io/communications/function/qammod.html)
+5. Link Budget Analysis: Digital Modulation, Part 3 (www.AtlantaRF.com)
+6. Viterbi, A. J. (1998). An intuitive justification and a simplified implementation of the MAP decoder for convolutional codes. IEEE Journal on Selected Areas in Communications, 16(2), 260-264.
+7. MathWorks: Approximate LLR Algorithm (https://www.mathworks.com/help/comm/ug/digital-modulation.html#brc6ymu)
