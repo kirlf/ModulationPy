@@ -272,7 +272,7 @@ The source code of the simulation is available [here](https://github.com/kirlf/M
 
 <img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/psk_ber.png" width="750" />
 
-*Fig. 1. Bit-error ratio curves in presence of AWGN.*
+*Fig. 2. Bit-error ratio curves in presence of AWGN.*
 
 > TODO: Make the same with the ```QAMModem class```.
 
