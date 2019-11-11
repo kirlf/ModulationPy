@@ -1,13 +1,13 @@
 from setuptools import setup
 
 DISTNAME = 'src'
-DESCRIPTION = 'Digital Linear Modems'
-LONG_DESCRIPTION = open('README.md').read()
+DESCRIPTION = 'Baseband Digital Linear Modems'
+LONG_DESCRIPTION = 'The documentation of this project can be obtained from our GitHub repository: https://github.com/kirlf/ModulationPy'
 MAINTAINER = 'Vladimir Fadeev'
 MAINTAINER_EMAIL = 'vovenur@gmail.com'
 URL = 'https://github.com/kirlf/ModulationPy'
 LICENSE = 'BSD 3-Clause'
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 
 
 setup(

@@ -1,0 +1,19 @@
+Metadata-Version: 1.2
+Name: ModulationPy
+Version: 0.1.5
+Summary: Baseband Digital Linear Modems
+Home-page: https://github.com/kirlf/ModulationPy
+Author: Vladimir Fadeev
+Author-email: vovenur@gmail.com
+License: BSD 3-Clause
+Description: The documentation of this project can be obtained from our GitHub repository: https://github.com/kirlf/ModulationPy
+Keywords: communications digital modulation demodulation psk qam
+Platform: UNKNOWN
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Intended Audience :: Science/Research
+Classifier: Intended Audience :: Telecommunications Industry
+Classifier: Operating System :: Unix
+Classifier: Topic :: Scientific/Engineering
+Classifier: Topic :: Software Development
+Requires-Python: >=3.6.4
