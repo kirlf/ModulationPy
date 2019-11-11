@@ -259,6 +259,11 @@ class Modem:
         if (self.bin_input == True) and ((len(x) % int(np.log2(self.M))) != 0):
         	raise ValueError("The length of the binary input should be a multiple of log2(M)")
 
+        if (self.bin_input == True) and ((max(x) > 1.) or (min(x) < 0.)):
+        	raise ValueError("The input values should be 0s or 1s only!")
+        if (self.bin_input == False) and ((max(x) > (self.M - 1)) or (min(x) < 0.)):
+        	raise ValueError("The input values should be in following range: [0, ... M-1]!")
+
         if self.bin_input == True: 
             modulated = self.__bin_modulate(x)
         else:
