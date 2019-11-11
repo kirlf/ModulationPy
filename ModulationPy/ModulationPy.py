@@ -255,7 +255,10 @@ class Modem:
         modulated : 1-D array of complex values
             Modulated symbols (signal envelope).
         '''
-        
+
+        if (self.bin_input == True) and ((len(x) % int(np.log2(self.M))) != 0):
+        	raise ValueError("The length of the binary input should be a multiple of log2(M)")
+
         if self.bin_input == True: 
             modulated = self.__bin_modulate(x)
         else:
@@ -268,7 +271,7 @@ class Modem:
         Parameters
         ----------
         x : 1-D ndarray of complex symbols
-            Decimal or binary stream to be modulated.
+            Decimal or binary stream to be demodulated.
         noise_var: float
             Additive noise variance.
         Returns
