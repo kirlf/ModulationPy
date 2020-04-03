@@ -1,6 +1,5 @@
 from setuptools import setup
 
-DISTNAME = 'src'
 DESCRIPTION = 'Baseband Digital Linear Modems'
 LONG_DESCRIPTION = 'The documentation of this project can be obtained from our GitHub repository: https://github.com/kirlf/ModulationPy'
 MAINTAINER = 'Vladimir Fadeev'
