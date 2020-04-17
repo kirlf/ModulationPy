@@ -168,29 +168,7 @@ class Modem:
             modulated.append(self.code_book[s])
         return modulated
 
-    def __dec_modulate(self, x):
-
-        ''' Modulates decimal stream.
-        Parameters
-        ----------
-        x : 1-D ndarray of ints
-            Decimal stream to be modulated.
-        Returns
-        -------
-        modulated : list of complex values
-            Modulated symbols (signal envelope).
-        '''
-        modulated = []
-        for a in x:
-            modulated.append(self.code_book[a])
-        return modulated
-
-
-
-    '''
-    
-        DEMODULATION ALGORITHMS
-    '''
+    ''' DEMODULATION ALGORITHMS '''
     
     def __ApproxLLR(self, x, noise_var):
 
