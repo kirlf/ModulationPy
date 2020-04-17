@@ -90,20 +90,18 @@ class Modem:
             value is the complex coordinate.         
         '''
 
-        dict_out = {}
         if self.bin_input == False and self.gray_map == False:
-            dict_out = self.__dict_make(m, s)
+            dict_out = {k: v for k,v in zip(m, s)}    
         elif self.bin_input == False and self.gray_map == True:
             mg = self.__gray_encoding(m)
-            dict_out = self.__dict_make(mg, s)
+            dict_out = {k: v for k,v in zip(mg, s)}
         elif self.bin_input == True and self.gray_map == False:
             mb = self.de2bin(m)
-            dict_out = self.__dict_make(mb, s)
+            dict_out = {k: v for k,v in zip(mb, s)}
         elif self.bin_input == True and self.gray_map == True:
             mg = self.__gray_encoding(m)
             mgb = self.de2bin(mg)
-            dict_out = self.__dict_make(mgb, s)
-
+            dict_out = {k: v for k,v in zip(mgb, s)}
         return dict_out
 
     def llr_preparation(self):
