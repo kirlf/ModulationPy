@@ -142,12 +142,7 @@ class Modem:
                         ones[ind].append(code_book_demod[idx])
         return zeros, ones
 
-
-
-    '''
-    
-        MODULATION ALGORITHMS
-    '''
+    ''' MODULATION ALGORITHMS '''
 
     def __bin_modulate(self, x):
 
@@ -243,7 +238,7 @@ class Modem:
         METHODS TO EXECUTE
     '''
     
-    def modulate(self, x):
+    def modulate(self, msg):
 
         ''' Modulates binary or decimal stream.
         Parameters
@@ -256,18 +251,18 @@ class Modem:
             Modulated symbols (signal envelope).
         '''
 
-        if (self.bin_input == True) and ((len(x) % int(np.log2(self.M))) != 0):
+        if (self.bin_input == True) and ((len(msg) % int(np.log2(self.M))) != 0):
         	raise ValueError("The length of the binary input should be a multiple of log2(M)")
 
-        if (self.bin_input == True) and ((max(x) > 1.) or (min(x) < 0.)):
+        if (self.bin_input == True) and ((max(msg) > 1.) or (min(msg) < 0.)):
         	raise ValueError("The input values should be 0s or 1s only!")
-        if (self.bin_input == False) and ((max(x) > (self.M - 1)) or (min(x) < 0.)):
+        if (self.bin_input == False) and ((max(msg) > (self.M - 1)) or (min(msg) < 0.)):
         	raise ValueError("The input values should be in following range: [0, ... M-1]!")
 
         if self.bin_input == True: 
-            modulated = self.__bin_modulate(x)
+            modulated = self.__bin_modulate(msg)
         else:
-            modulated = self.__dec_modulate(x)
+            modulated = [self.code_book[dec] for dec in msg]
         return np.array(modulated)
      
     def demodulate(self, x, noise_var=1.):
