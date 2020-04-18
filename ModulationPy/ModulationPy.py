@@ -96,7 +96,7 @@ class Modem:
         code_book_demod = self.code_book
         
         zeros = [[] for i in range(self.N)]  
-        ones = zeros[:]
+        ones = [[] for i in range(self.N)]
 
         b = self.de2bin(self.m)
         for idx, n in enumerate(b):
@@ -142,11 +142,11 @@ class Modem:
         LLR = []
         for (zero_i, one_i) in zip(zeros, ones):
 
-            num = [((np.real(x) - np.real(z))**2)
-                    + ((np.imag(x) - np.imag(z))**2)
+            num = [list(((np.real(x) - np.real(z))**2)
+                    + ((np.imag(x) - np.imag(z))**2))
                       for z in zero_i]
-            denum = [(( np.real(x) - np.real(o))**2)
-                    + ((np.imag(x) - np.imag(o))**2)
+            denum = [list((( np.real(x) - np.real(o))**2)
+                    + ((np.imag(x) - np.imag(o))**2))
                       for o in one_i]
             
             num_post = np.amin(num, axis=0, keepdims=True)
@@ -154,12 +154,10 @@ class Modem:
 
             llr = np.transpose(num_post[0]) - np.transpose(denum_post[0])
             LLR.append(-llr/noise_var)
-        #result = np.array([llr[0] for llr in LLR])
-        #print(result)
+
         result = np.zeros((len(x)*len(zeros))) 
         for i, llr in enumerate(LLR):
             result[i::len(zeros)] = llr
-        print(result)
         return result
 
     ''' METHODS TO EXECUTE '''
@@ -214,7 +212,6 @@ class Modem:
         else:
             if self.bin_output == True: 
                 result = (np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2 
-                print(self.__ApproxLLR(x, noise_var))
             else:
                 result = self.bin2de((np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2)                      
         return result 
