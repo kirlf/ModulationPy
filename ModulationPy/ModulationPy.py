@@ -143,20 +143,24 @@ class Modem:
         zeros = self.zeros
         ones = self.ones
         LLR = []
-        for d in range(len(zeros)): #or for d in range(len(ones)):
-            num = []
-            for z in zeros[d]:
-                num.append( list( ( ( np.real(x) - np.real(z) )**2 ) + ( (np.imag(x) - np.imag(z))**2 ) ) )
-            denum = []
-            for o in ones[d]:
-                denum.append( list( ( ( np.real(x) - np.real(o) )**2 ) + ( (np.imag(x) - np.imag(o))**2 ) ) )
+        for zero_i, one_i in zip(zeros, ones):
+
+            num = [list((( np.real(x) - np.real(z))**2)
+                    + ((np.imag(x) - np.imag(z))**2))
+                      for z in zero_i]
+            denum = [list( (( np.real(x) - np.real(o))**2)
+                    + ( (np.imag(x) - np.imag(o))**2 ) )
+                      for o in one_i]
+        
             num_post = np.amin(num, axis=0, keepdims=True)
             denum_post = np.amin(denum, axis=0, keepdims=True)
+
             llr = np.transpose(num_post[0]) - np.transpose(denum_post[0])
             LLR.append(-llr/noise_var)
+
         result = np.zeros((len(x)*len(zeros))) 
-        for i, n in enumerate(LLR):
-            result[i::len(zeros)] = n
+        for i, llr in enumerate(LLR):
+            result[i::len(zeros)] = llr
         return result
 
     ''' METHODS TO EXECUTE '''
