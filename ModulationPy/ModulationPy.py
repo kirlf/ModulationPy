@@ -95,11 +95,8 @@ class Modem:
 
         code_book_demod = self.code_book
         
-        zeros = []  
-        ones = []
-        for c in range(self.N):
-            zeros.append([])
-            ones.append([])
+        zeros = [[] for i in range(self.N)]  
+        ones = zeros[:]
 
         b = self.de2bin(self.m)
         for idx, n in enumerate(b):
@@ -143,24 +140,26 @@ class Modem:
         zeros = self.zeros
         ones = self.ones
         LLR = []
-        for zero_i, one_i in zip(zeros, ones):
+        for (zero_i, one_i) in zip(zeros, ones):
 
-            num = [list((( np.real(x) - np.real(z))**2)
-                    + ((np.imag(x) - np.imag(z))**2))
+            num = [((np.real(x) - np.real(z))**2)
+                    + ((np.imag(x) - np.imag(z))**2)
                       for z in zero_i]
-            denum = [list( (( np.real(x) - np.real(o))**2)
-                    + ( (np.imag(x) - np.imag(o))**2 ) )
+            denum = [(( np.real(x) - np.real(o))**2)
+                    + ((np.imag(x) - np.imag(o))**2)
                       for o in one_i]
-        
+            
             num_post = np.amin(num, axis=0, keepdims=True)
             denum_post = np.amin(denum, axis=0, keepdims=True)
 
             llr = np.transpose(num_post[0]) - np.transpose(denum_post[0])
             LLR.append(-llr/noise_var)
-
+        #result = np.array([llr[0] for llr in LLR])
+        #print(result)
         result = np.zeros((len(x)*len(zeros))) 
         for i, llr in enumerate(LLR):
             result[i::len(zeros)] = llr
+        print(result)
         return result
 
     ''' METHODS TO EXECUTE '''
@@ -215,6 +214,7 @@ class Modem:
         else:
             if self.bin_output == True: 
                 result = (np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2 
+                print(self.__ApproxLLR(x, noise_var))
             else:
                 result = self.bin2de((np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2)                      
         return result 
@@ -276,12 +276,9 @@ class PSKModem(Modem):
             s.append(int(str_o, 2))
         return s 
     
-
-
     def plot_const(self):
         
-        ''' Plots signal constellation
-        '''
+        ''' Plots signal constellation '''
         
         const = self.code_book
         fig = plt.figure(figsize=(6, 4), dpi=150)
