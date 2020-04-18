@@ -226,27 +226,24 @@ class PSKModem(Modem):
         self.zeros, self.ones = self.llr_preparation()  
       
     
-    def de2bin(self, s):
-
-
+    def de2bin(self, decs):
         ''' Converts values from decimal to binary representation.
         Parameters
         ----------
-        s : list of ints
+        decs : list of ints
             Input decimal values.
         Returns
         -------
-        b : list of ints
+        bin_out : list of ints
             Output binary sequences.
         '''
-
-        b = []
-        for m in s:
-            a = np.binary_repr(m, width=self.N)
-            if np.log2(self.M)%2 == 0:
-                a = a[::-1]
-            b.append(a)
-        return b
+        if self.N % 2 == 0:
+            bin_out = [np.binary_repr(d, width=self.N)[::-1] 
+                  for d in decs]
+        else:
+            bin_out = [np.binary_repr(d, width=self.N) 
+                  for d in decs]
+        return bin_out
 
     def bin2de(self, b):
 
@@ -262,19 +259,16 @@ class PSKModem(Modem):
         '''
 
         s = []
-        m = int(np.log2(self.M))
+        m = self.N
         for i in range( int(len(b) / m)):
             outp = b[i*m:i*m+m]
-            str_o = ''
-            for o in outp:
-                str_o = str_o + str(int(o))
+            str_o = "".join([str(int(o)) for o in outp])
             if np.log2(self.M)%2 == 0:
                 str_o = str_o[::-1]
             s.append(int(str_o, 2))
         return s 
     
-    def plot_const(self):
-        
+    def plot_const(self):     
         ''' Plots signal constellation '''
         
         const = self.code_book
@@ -346,10 +340,7 @@ class QAMModem(Modem):
 
 
     def __qam_symbols(self):
-
-
-        ''' Creates M-QAM complex symbols.
-        '''        
+        ''' Creates M-QAM complex symbols.'''        
 
         c = np.sqrt(self.M)
         b = -2*(np.array(self.m) % c) + c - 1
@@ -367,24 +358,21 @@ class QAMModem(Modem):
                 self.code_book[key] = np.conj(item)
 
 
-    def de2bin(self, s):
+    def de2bin(self, decs):
 
         ''' Converts values from decimal to binary representation.
         Parameters
         ----------
-        s : list of ints
+        decs : list of ints
             Input decimal values.
         Returns
         -------
-        b : list of ints
+        bin_out : list of ints
             Output binary sequences.
         '''
 
-        b = []
-        for m in s:
-            a = np.binary_repr(m, width=self.N)
-            b.append(a)
-        return b
+        bin_out = [np.binary_repr(d, width=self.N) for d in decs]
+        return bin_out
 
     def bin2de(self, b):
 
@@ -399,13 +387,11 @@ class QAMModem(Modem):
             Output decimal values.
         '''
 
+        m = self.N
         s = []
-        m = int(np.log2(self.M))
         for i in range( int(len(b) / m)):
             outp = b[i*m:i*m+m]
-            str_o = ''
-            for o in outp:
-                str_o = str_o + str(int(o))
+            str_o = "".join([str(int(o)) for o in outp])
             s.append(int(str_o, 2))
         return s 
 
