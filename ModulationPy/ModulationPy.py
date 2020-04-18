@@ -142,11 +142,11 @@ class Modem:
         LLR = []
         for (zero_i, one_i) in zip(zeros, ones):
 
-            num = [list(((np.real(x) - np.real(z))**2)
-                    + ((np.imag(x) - np.imag(z))**2))
+            num = [((np.real(x) - np.real(z))**2)
+                    + ((np.imag(x) - np.imag(z))**2)
                       for z in zero_i]
-            denum = [list((( np.real(x) - np.real(o))**2)
-                    + ((np.imag(x) - np.imag(o))**2))
+            denum = [(( np.real(x) - np.real(o))**2)
+                    + ((np.imag(x) - np.imag(o))**2)
                       for o in one_i]
             
             num_post = np.amin(num, axis=0, keepdims=True)
