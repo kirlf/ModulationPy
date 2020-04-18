@@ -6,23 +6,21 @@ import matplotlib.pyplot as plt
 class Modem:
     def __init__(self, M, gray_map = True, bin_input = True, soft_decision = True, bin_output = True):
         
-        if np.log2(M) != np.round(np.log2(M)):
+        N = np.log2(M) # bits per symbol
+        if N != np.round(N):
             raise ValueError("M should be 2**n, with n=1, 2, 3...")
         if soft_decision == True and bin_output == False:
             raise ValueError("Non-binary output is available only for hard decision") 
         
-        self.M = M    
+        self.M = M # modulation order
+        self.N = int(N) # bits per symbol
         self.m = [i for i in range(self.M)]    
         self.gray_map = gray_map
         self.bin_input = bin_input
         self.soft_decision = soft_decision
         self.bin_output = bin_output
         
-    
-    '''
-    
-        SERVING METHODS
-    '''
+    ''' SERVING METHODS '''
 
     def __gray_encoding(self, s):
 
@@ -50,28 +48,6 @@ class Modem:
                     y = y + str(int(symbol[idx])^int(symbol[idx-1]))
             s2.append(int(y, 2))
         return s2
-
-    def __dict_make(self, m, s):
-            
-            ''' Creates dictionary where 
-                keys are decimal or binary values and
-                values are complex values
-            Parameters
-            ----------
-            m : list of ints
-                Decimal or binary sequence to be key of dictionary.
-            s: list of ints
-                Complex envelope to be values of dictionary.
-            Returns
-            -------
-            dict_out : dict
-                Output dictionary.        
-            '''
-            
-            dict_out = {}
-            for x, y in zip(m, s):
-                dict_out[x] = y
-            return dict_out
 
     def create_constellation(self, m, s):
 
@@ -121,7 +97,7 @@ class Modem:
         
         zeros = []  
         ones = []
-        for c in range(int(np.log2(self.M))):
+        for c in range(self.N):
             zeros.append([])
             ones.append([])
 
@@ -139,32 +115,6 @@ class Modem:
                     else:
                         ones[ind].append(code_book_demod[idx])
         return zeros, ones
-
-    ''' MODULATION ALGORITHMS '''
-
-    def __bin_modulate(self, x):
-
-        ''' Modulates binary stream.
-        Parameters
-        ----------
-        x : 1-D ndarray of ints
-            Binary stream to be modulated.
-        Returns
-        -------
-        modulated : list of complex values
-            Modulated symbols (signal envelope).
-        '''
-        modulated = []
-        m = []
-        n = int(np.log2(self.M))
-        lenx = len(x)
-        for c in range(int(lenx/n)):
-            s = ''
-            y = x[(c + (n - 1)*c):(((n - 1)*c) + (n - 1) + (1+c))]
-            for d in y:
-                s = s+str(int(d))
-            modulated.append(self.code_book[s])
-        return modulated
 
     ''' DEMODULATION ALGORITHMS '''
     
@@ -209,10 +159,7 @@ class Modem:
             result[i::len(zeros)] = n
         return result
 
-    '''
-    
-        METHODS TO EXECUTE
-    '''
+    ''' METHODS TO EXECUTE '''
     
     def modulate(self, msg):
 
@@ -227,7 +174,7 @@ class Modem:
             Modulated symbols (signal envelope).
         '''
 
-        if (self.bin_input == True) and ((len(msg) % int(np.log2(self.M))) != 0):
+        if (self.bin_input == True) and ((len(msg) % self.N) != 0):
         	raise ValueError("The length of the binary input should be a multiple of log2(M)")
 
         if (self.bin_input == True) and ((max(msg) > 1.) or (min(msg) < 0.)):
@@ -236,7 +183,10 @@ class Modem:
         	raise ValueError("The input values should be in following range: [0, ... M-1]!")
 
         if self.bin_input == True: 
-            modulated = self.__bin_modulate(msg)
+            msg = [str(bit) for bit in msg]
+            splited = ["".join(msg[i:i + self.N]) 
+                          for i in range(0, len(msg), self.N)] # subsequences of bits
+            modulated = [self.code_book[s] for s in splited]
         else:
             modulated = [self.code_book[dec] for dec in msg]
         return np.array(modulated)
@@ -291,7 +241,7 @@ class PSKModem(Modem):
 
         b = []
         for m in s:
-            a = np.binary_repr(m, width=int(np.log2(self.M)))
+            a = np.binary_repr(m, width=self.N)
             if np.log2(self.M)%2 == 0:
                 a = a[::-1]
             b.append(a)
@@ -434,7 +384,7 @@ class QAMModem(Modem):
 
         b = []
         for m in s:
-            a = np.binary_repr(m, width=int(np.log2(self.M)))
+            a = np.binary_repr(m, width=self.N)
             b.append(a)
         return b
 
