@@ -245,28 +245,28 @@ class PSKModem(Modem):
                   for d in decs]
         return bin_out
 
-    def bin2de(self, b):
-
+    def bin2de(self, bin_in):
         ''' Converts values from binary to decimal representation.
         Parameters
         ----------
-        b : list of ints
+        bin_in : list of ints
             Input binary values.
         Returns
         -------
-        s : list of ints
+        dec_out : list of ints
             Output decimal values.
         '''
 
-        s = []
-        m = self.N
-        for i in range( int(len(b) / m)):
-            outp = b[i*m:i*m+m]
-            str_o = "".join([str(int(o)) for o in outp])
-            if np.log2(self.M)%2 == 0:
+        dec_out = []
+        N = self.N # bits per modulation symbol (local variables are tiny bit faster)
+        Ndecs = int(len(bin_in) / N) # length of the decimal output 
+        for i in range(Ndecs):
+            bin_seq = bin_in[i*N:i*N+N] # binary equivalent of the one decimal value 
+            str_o = "".join([str(int(b)) for b in bin_seq]) # binary sequence to string
+            if N % 2 == 0:
                 str_o = str_o[::-1]
-            s.append(int(str_o, 2))
-        return s 
+            dec_out.append(int(str_o, 2))
+        return dec_out
     
     def plot_const(self):     
         ''' Plots signal constellation '''
@@ -318,10 +318,8 @@ class PSKModem(Modem):
         plt.title(M+'PSK, phase rotation: '+str(round(self.phi, 5))+\
                   ', Mapping: '+mapping+', Input: '+inputs)
         plt.show()   
-                                    
-
-    
-    
+                                  
+                                  
 class QAMModem(Modem):
     def __init__(self, M, gray_map=True, bin_input=True, soft_decision = True, bin_output = True):
         super().__init__(M, gray_map, bin_input, soft_decision, bin_output)
@@ -359,7 +357,6 @@ class QAMModem(Modem):
 
 
     def de2bin(self, decs):
-
         ''' Converts values from decimal to binary representation.
         Parameters
         ----------
@@ -370,30 +367,29 @@ class QAMModem(Modem):
         bin_out : list of ints
             Output binary sequences.
         '''
-
         bin_out = [np.binary_repr(d, width=self.N) for d in decs]
         return bin_out
 
-    def bin2de(self, b):
-
+    def bin2de(self, bin_in):
         ''' Converts values from binary to decimal representation.
         Parameters
         ----------
-        b : list of ints
+        bin_in : list of ints
             Input binary values.
         Returns
         -------
-        s : list of ints
+        dec_out : list of ints
             Output decimal values.
         '''
 
-        m = self.N
-        s = []
-        for i in range( int(len(b) / m)):
-            outp = b[i*m:i*m+m]
-            str_o = "".join([str(int(o)) for o in outp])
-            s.append(int(str_o, 2))
-        return s 
+        dec_out = []
+        N = self.N # bits per modulation symbol (local variables are tiny bit faster)
+        Ndecs = int(len(bin_in) / N) # length of the decimal output 
+        for i in range(Ndecs):
+            bin_seq = bin_in[i*N:i*N+N] # binary equivalent of the one decimal value 
+            str_o = "".join([str(int(b)) for b in bin_seq]) # binary sequence to string
+            dec_out.append(int(str_o, 2))
+        return dec_out 
 
 
     def plot_const(self):
