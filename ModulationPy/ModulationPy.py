@@ -163,7 +163,6 @@ class Modem:
     ''' METHODS TO EXECUTE '''
     
     def modulate(self, msg):
-
         ''' Modulates binary or decimal stream.
         Parameters
         ----------
@@ -193,7 +192,6 @@ class Modem:
         return np.array(modulated)
      
     def demodulate(self, x, noise_var=1.):
-
         ''' Demodulates complex symbols.
         Parameters
         ----------
@@ -210,10 +208,12 @@ class Modem:
         if self.soft_decision == True:
             result = self.__ApproxLLR(x, noise_var)
         else:
-            if self.bin_output == True: 
-                result = (np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2 
+            if self.bin_output == True:
+                llr = self.__ApproxLLR(x, noise_var)
+                result = (np.sign(-llr) + 1) / 2 # NRZ-to-bin
             else:
-                result = self.bin2de((np.sign(-self.__ApproxLLR(x, noise_var)) + 1) / 2)                      
+                llr = self.__ApproxLLR(x, noise_var)
+                result = self.bin2de((np.sign(-llr) + 1) / 2)                      
         return result 
 
     
@@ -347,7 +347,6 @@ class QAMModem(Modem):
         return  s
 
     def __gray_qam_arange(self):
-
         ''' Rearanges complex coordinates according to Gray coding requirements.
         '''   
 
@@ -393,9 +392,7 @@ class QAMModem(Modem):
 
 
     def plot_const(self):
-
-        ''' Plots signal constellation
-        '''
+        ''' Plots signal constellation '''
 
         if self.M <= 16:
             limits = np.log2(self.M)
