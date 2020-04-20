@@ -22,35 +22,30 @@ class Modem:
         
     ''' SERVING METHODS '''
 
-    def __gray_encoding(self, s):
-
-        ''' Encodes the binary sequence by Gray encoding rule.         
+    def __gray_encoding(self, dec_in):
+        ''' Encodes values by Gray encoding rule.         
         
         Parameters
         ----------
-        s : list of ints
-            Input binary sequence to be encoded by Gray.
+        dec_in : list of ints
+            Input sequence of decimals to be encoded by Gray.
         Returns
         -------
-        s2: list of ints
+        gray_out: list of ints
             Output encoded by Gray sequence.
         '''
 
-        s2 = []
-        for i in s:
-            symbol = bin(i)[2:]
-            if len(symbol) < np.log2(self.M):
-                symbol = int( (np.log2(self.M) - len(symbol)) )*'0'+symbol
-            for idx in range(len(symbol)):
-                if idx == 0:
-                    y = symbol[idx]
-                else:
-                    y = y + str(int(symbol[idx])^int(symbol[idx-1]))
-            s2.append(int(y, 2))
-        return s2
+        bin_seq = [np.binary_repr(d, width=self.N) for d in dec_in]
+        gray_out = []
+        for bin_i in bin_seq:
+            gray_vals = [str(int(bin_i[idx])^int(bin_i[idx-1])) 
+                         if idx != 0 else bin_i[0] 
+                         for idx in range(0, len(bin_i))]
+            gray_i = "".join(gray_vals)
+            gray_out.append(int(gray_i, 2))
+        return gray_out
 
     def create_constellation(self, m, s):
-
         ''' Creates signal constellation.
         Parameters
         ----------
@@ -81,8 +76,6 @@ class Modem:
         return dict_out
 
     def llr_preparation(self):
-
-
         ''' Creates the coordinates 
         where either zeros or ones can be placed in the signal constellation..
         Returns
@@ -92,33 +85,29 @@ class Modem:
         ones : list of lists of complex values 
             The coordinates where ones can be placed in the signal constellation.        
         '''
+        code_book = self.code_book
 
-        code_book_demod = self.code_book
-        
         zeros = [[] for i in range(self.N)]  
         ones = [[] for i in range(self.N)]
 
-        b = self.de2bin(self.m)
-        for idx, n in enumerate(b):
-            for ind, m in enumerate(n):
+        bin_seq = self.de2bin(self.m)
+
+        for bin_idx, bin_symb in enumerate(bin_seq):
+            for possition, digit in enumerate(bin_symb):
                 if self.bin_input == True:
-                    if m == '0':
-                        zeros[ind].append(code_book_demod[n])
-                    else:
-                        ones[ind].append(code_book_demod[n])
+                    key = bin_symb
                 else:
-                    if m == '0':
-                        zeros[ind].append(code_book_demod[idx])
-                    else:
-                        ones[ind].append(code_book_demod[idx])
+                    key = bin_idx
+                if digit == '0':
+                    zeros[possition].append(code_book[key])
+                else:
+                    ones[possition].append(code_book[key])
         return zeros, ones
 
     ''' DEMODULATION ALGORITHMS '''
     
     def __ApproxLLR(self, x, noise_var):
-
-        ''' Calculates approximate Log-likelihood Ratios (LLRs) [1].         
-        
+        ''' Calculates approximate Log-likelihood Ratios (LLRs) [1].       
         Parameters
         ----------
         x : 1-D ndarray of complex values
@@ -220,7 +209,7 @@ class Modem:
 class PSKModem(Modem):
     def __init__(self, M, phi=0, gray_map=True, bin_input=True, soft_decision=True, bin_output = True):
         super().__init__(M, gray_map, bin_input, soft_decision, bin_output)
-        self.phi = phi 
+        self.phi = phi # phase rotation
         self.s = list(np.exp(1j*self.phi + 1j*2*np.pi*np.array(self.m)/self.M))
         self.code_book = self.create_constellation(self.m, self.s)
         self.zeros, self.ones = self.llr_preparation()  
