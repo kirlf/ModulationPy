@@ -93,11 +93,11 @@ class Modem:
         bin_seq = self.de2bin(self.m)
 
         for bin_idx, bin_symb in enumerate(bin_seq):
+            if self.bin_input == True:
+                key = bin_symb
+            else:
+                key = bin_idx
             for possition, digit in enumerate(bin_symb):
-                if self.bin_input == True:
-                    key = bin_symb
-                else:
-                    key = bin_idx
                 if digit == '0':
                     zeros[possition].append(code_book[key])
                 else:
