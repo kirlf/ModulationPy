@@ -290,7 +290,7 @@ where <img src="https://tex.s2cms.ru/svg/%20x%20" alt=" x " /> is the In-phase c
 
 Comparison information:
 
-- The script: [CommPy-vs-ModulationPy.py](https://github.com/kirlf/ModulationPy/blob/master/docs/CommPy_vs_ModulationPy.ipynb)
+- The script: [CommPy_vs_ModulationPy.ipynb](https://github.com/kirlf/ModulationPy/blob/master/docs/CommPy_vs_ModulationPy.ipynb)
 - Platform: https://jupyter.org/try (Classic Notebook)
 - The frame length: 10 000 (bits)
 - The number of trials: 10 000
