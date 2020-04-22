@@ -293,7 +293,6 @@ Comparison information:
 - The script: [CommPy_vs_ModulationPy.ipynb](https://github.com/kirlf/ModulationPy/blob/master/docs/CommPy_vs_ModulationPy.ipynb)
 - Platform: https://jupyter.org/try (Classic Notebook)
 - The frame length: 10 000 (bits)
-- The number of trials: 10 000
 
 Results:
 
