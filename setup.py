@@ -6,7 +6,7 @@ MAINTAINER = 'Vladimir Fadeev'
 MAINTAINER_EMAIL = 'vovenur@gmail.com'
 URL = 'https://github.com/kirlf/ModulationPy'
 LICENSE = 'BSD 3-Clause'
-VERSION = '0.1.5'
+VERSION = '0.1.8'
 
 
 setup(
