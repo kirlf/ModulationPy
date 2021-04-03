@@ -280,7 +280,7 @@ The theoretical BER curves for M-QAM case can be obtained via the following form
 
 The theoretical BER curve for 4-QAM is identical to the BPSK/QPSK case.
 
-<img src="https://habrastorage.org/webt/qb/gc/lj/qbgcljn_yzdudsvnb3p2zbshtjw.png" />
+<img src="https://habrastorage.org/webt/qb/gc/lj/qbgcljn_yzdudsvnb3p2zbshtjw.png" width="750"/>
 
 *Fig. 3. Bit-error ratio curves in presence of AWGN (M-QAM).*
 
