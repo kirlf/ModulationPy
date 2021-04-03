@@ -256,7 +256,7 @@ Let us demonstrate this at example with the following system model:
 
 The simulation results will be compared with theoretical curves \[5\]:
 
-<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_b%20%3D%20%5Cfrac%7Berfc%20%5Cleft(%20%5Csqrt%7Blog_2(M)%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Csin%5Cleft(%20%5Cfrac%7B%5Cpi%7D%7BM%7D%20%5Cright)%20%5Cright)%7D%7Blog_2(M)%7D%20%5Cqquad%20(5)%0A" alt=" 
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_%7Bb,PSK%7D%20%3D%20%5Cfrac%7Berfc%20%5Cleft(%20%5Csqrt%7Blog_2(M)%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Csin%5Cleft(%20%5Cfrac%7B%5Cpi%7D%7BM%7D%20%5Cright)%20%5Cright)%7D%7Blog_2(M)%7D%20%5Cqquad%20(5)%0A" alt=" 
 P_b = \frac{erfc \left( \sqrt{log_2(M)\frac{E_b}{N_o}}\sin\left( \frac{\pi}{M} \right) \right)}{log_2(M)}
 " /></p>
 
@@ -264,7 +264,7 @@ where <img src="https://tex.s2cms.ru/svg/M%20%3E4%20" alt="M &gt;4 " />, <img sr
 
 In case of BPSK and QPSK the following formula should be used for error probability:
 
-<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_%7Bb%2C%20BQ%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7Derfc%20%5Cleft(%20%5Csqrt%7B%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Cright)%7D%20%5Cqquad%20(6)%0A" alt=" 
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20%0AP_%7Bb%2C%20BQPSK%7D%20%3D%20%5Cfrac%7B1%7D%7B2%7Derfc%20%5Cleft(%20%5Csqrt%7B%5Cfrac%7BE_b%7D%7BN_o%7D%7D%5Cright)%7D%20%5Cqquad%20(6)%0A" alt=" 
 P_{b, BQ} = \frac{1}{2}erfc \left( \sqrt{\frac{E_b}{N_o}}\right)} \qquad (6)
 " /></p>
 
@@ -272,9 +272,18 @@ The source code of the simulation is available [here](https://github.com/kirlf/M
 
 <img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/psk_ber.png" width="750" />
 
-*Fig. 2. Bit-error ratio curves in presence of AWGN.*
+*Fig. 2. Bit-error ratio curves in presence of AWGN (M-PSK).*
 
-> TODO: Make the same with the ```QAMModem class```.
+The theoretical BER curves for M-QAM case can be obtained via the following formula [5]:
+
+<p align="center"><img align="center" src="https://i.upmath.me/svg/P_%7Bb%2CQAM%7D%20%3D%202%20%5Cleft(%5Cfrac%7B%5Csqrt%7BM%7D-1%7D%7BM%5Clog_2M%7D%5Cright)erfc%5Cleft(%20%5Csqrt%7B%5Cfrac%7B3%5Clog_2M%7D%7B2(M-1)%7D%20%5Cfrac%7BE_b%7D%7BN_0%7D%7D%20%5Cright)%20%5Cqquad%20(7)" alt="P_{b,QAM} = 2 \left(\frac{\sqrt{M}-1}{M\log_2M}\right)erfc\left( \sqrt{\frac{3\log_2M}{2(M-1)} \frac{E_b}{N_0}} \right) \qquad (7)" /></p>
+
+The theoretical BER curve for 4-QAM is identical to the BPSK/QPSK case.
+
+<img src="https://habrastorage.org/webt/qb/gc/lj/qbgcljn_yzdudsvnb3p2zbshtjw.png" />
+
+*Fig. 3. Bit-error ratio curves in presence of AWGN (M-QAM).*
+
 
 The dismatchings are appeared cause of small number of averages. Anyway, it works. 
 
@@ -284,7 +293,7 @@ To demonstrate execution time performance let us comparate our package with anot
 
 The demodulation algorithm is developed according to following fomula in our project \[6\],\[7\]:
 
-<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20L(b)%20%3D%20-%5Cfrac%7B1%7D%7B%5Csigma%5E2%7D%20%5Cleft(%20%5Cmin_%7Bs%20%5Cepsilon%20S_0%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%20%20-%20%5Cmin_%7Bs%20%5Cepsilon%20S_1%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%5Cright)%20%5Cqquad(7)" alt=" L(b) = -\frac{1}{\sigma^2} \left( \min_{s \epsilon S_0} \left( (x - s_x)^2 + (y - s_y)^2 \right)  - \min_{s \epsilon S_1} \left( (x - s_x)^2 + (y - s_y)^2 \right)\right) \qquad(7)" /></p>
+<p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20L(b)%20%3D%20-%5Cfrac%7B1%7D%7B%5Csigma%5E2%7D%20%5Cleft(%20%5Cmin_%7Bs%20%5Cepsilon%20S_0%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%20%20-%20%5Cmin_%7Bs%20%5Cepsilon%20S_1%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%5Cright)%20%5Cqquad(8)" alt=" L(b) = -\frac{1}{\sigma^2} \left( \min_{s \epsilon S_0} \left( (x - s_x)^2 + (y - s_y)^2 \right)  - \min_{s \epsilon S_1} \left( (x - s_x)^2 + (y - s_y)^2 \right)\right) \qquad(7)" /></p>
 
 where <img src="https://tex.s2cms.ru/svg/%20x%20" alt=" x " /> is the In-phase coordinate of the received symbol, <img src="https://tex.s2cms.ru/svg/%20y%20" alt=" y " /> is the Quadrature coordinate of the received symbol, <img src="https://tex.s2cms.ru/svg/%20s_x%20" alt=" s_x " /> is the In-phase coordinate of ideal symbol or constellation point, <img src="https://tex.s2cms.ru/svg/%20s_y%20" alt=" s_y " /> is the Quadrature coordinate of ideal symbol or constellation point, <img src="https://tex.s2cms.ru/svg/%20S_0%20" alt=" S_0 " /> is the ideal symbols or constellation points with bit 0, at the given bit position, <img src="https://tex.s2cms.ru/svg/%20S_1%20" alt=" S_1 " /> is the ideal symbols or constellation points with bit 1, at the given bit position, <img src="https://tex.s2cms.ru/svg/%20b%20" alt=" b " /> is the transmitted bit (one of the K bits in an M-ary symbol, assuming all M symbols are equally probable, <img src="https://tex.s2cms.ru/svg/%20%5Csigma%5E2%20" alt=" \sigma^2 " /> is the noise variance of baseband signal. The decision was pre-verified in [this simulation](https://www.mathworks.com/matlabcentral/fileexchange/72392-exact-vs-approximate-llr-calculation?s_tid=prof_contriblnk). 
 
@@ -298,12 +307,15 @@ Results:
 
 | Method (package)       | Average execution time (ms)|
 | ------------- |:-------------:| 
-| modulation (ModulationPy)    | 17.09 |
-| modulation (CommPy)      |  15.91     |   
-| demodulation (ModulationPy)    | 7.66 |
-| demodulation (CommPy)      |    310.81   |   
+| modulation (ModulationPy):  QPSK   | 10.3 |
+| modulation (CommPy):  QPSK      |  15.7     |   
+| demodulation (ModulationPy):  QPSK    | 0.4 |
+| demodulation (CommPy):  QPSK      |    319   |
+| modulation (ModulationPy):  256-QAM   | 8.9 |
+| modulation (CommPy):  256-QAM       |  11.3     |   
+| demodulation (ModulationPy):  256-QAM     | 42.6 |
+| demodulation (CommPy):  256-QAM       |    22 000   |     
 
-> TODO: Make the same with the ```QAMModem class```.
 
 Yes, I admit that our implementation is slower than MatLab blocks and functions (see ["Examples"](https://ch.mathworks.com/matlabcentral/fileexchange/72860-fast-qpsk-implementation?s_tid=prof_contriblnk)). However, I believe that this is a good start!
 
