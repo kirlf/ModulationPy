@@ -288,7 +288,7 @@ The theoretical BER curve for 4-QAM is identical to the BPSK/QPSK case.
 
 The dismatchings are appeared cause of small number of averages. Anyway, it works. 
 
-### 3. Execution time performance
+### 4. Execution time performance
 
 To demonstrate execution time performance let us comparate our package with another implementation, e.g. with the mentioned above [CommPy](https://github.com/veeresht/CommPy).
 
