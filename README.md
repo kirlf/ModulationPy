@@ -268,7 +268,7 @@ In case of BPSK and QPSK the following formula should be used for error probabil
 P_{b, BQ} = \frac{1}{2}erfc \left( \sqrt{\frac{E_b}{N_o}}\right)} \qquad (6)
 " /></p>
 
-The source code of the simulation is available [here](https://github.com/kirlf/ModulationPy/blob/master/docs/PSK_BER.py). The results are presented below. 
+The results are presented below. 
 
 <img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/psk_ber.png" width="750" />
 
@@ -284,6 +284,7 @@ The theoretical BER curve for 4-QAM is identical to the BPSK/QPSK case.
 
 *Fig. 3. Bit-error ratio curves in presence of AWGN (M-QAM).*
 
+> The source codes of the simulation are available here: [M-PSK](https://github.com/kirlf/ModulationPy/blob/master/docs/PSK_BER.py), [M-QAM](https://github.com/kirlf/ModulationPy/blob/master/docs/QAM_BER.py).
 
 The dismatchings are appeared cause of small number of averages. Anyway, it works. 
 
