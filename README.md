@@ -1,3 +1,5 @@
+<img src="https://raw.githubusercontent.com/kirlf/ModulationPy/master/docs/img/modulationpy_logo.png" width="250" />
+
 [![Build Status](https://travis-ci.com/kirlf/ModulationPy.svg?branch=master)](https://travis-ci.com/kirlf/ModulationPy)
 [![PyPi](https://badge.fury.io/py/ModulationPy.svg)](https://pypi.org/project/ModulationPy/)
 [![Coverage](https://coveralls.io/repos/kirlf/ModulationPy/badge.svg)](https://coveralls.io/r/kirlf/ModulationPy)
