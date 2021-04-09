@@ -96,13 +96,9 @@ M-QAM modem is available in ```class QAMModem``` with the following parameters:
 | ```soft_decision``` | ```True``` or ```False``` | Specify whether the output values of ```demodulate()``` method is demodulated as hard or soft decisions. If parametr is ```True``` the output will be Log-likelihood ratios (LLR's), else binary symbols. The default is ```True```.|
 | ```bin_output``` | ```True``` or ```False```|Specify whether the output of ```demodulate()``` method is bits or integers. The default is ```True```.|
 
-Now the QAM modulation is designed as in **qammod** Octave function \[4\]. It requires only "even" (in sense, that ```log2(M)``` is even) modulation schemes (4-QAM, 16-QAM, 64-QAM and so on).
+Now the QAM modulation is designed as in **qammod** Octave function \[4\]. It requires only "even" (in sense, that ```log2(M)``` is even) modulation schemes (4-QAM, 16-QAM, 64-QAM and so on - universal and simple).
+Anyway, there are no "odd" modulation schemes in [popular wireless communication standards](https://www.quora.com/What-different-modulation-techniques-are-used-in-1G-2G-3G-4G-and-5G).
 
-Actually, this fact has its own reasons:
-- the modulation algorithm for these modulation schemes is universal and simple;
-- there are no "odd" modulation schemes in [popular wireless communication standards](https://www.quora.com/What-different-modulation-techniques-are-used-in-1G-2G-3G-4G-and-5G).
-
-To implement correct Gray mapping the additional heuristic is used: the even "columns" in the signal constellation is complex conjugated.
 
 ## How to use?
 

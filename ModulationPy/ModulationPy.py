@@ -352,7 +352,9 @@ class QAMModem(Modem):
         return s
 
     def __gray_qam_arange(self):
-        """ Rearanges complex coordinates according to Gray coding requirements.
+        """ This method re-arranges complex coordinates according to Gray coding requirements.
+        To implement correct Gray mapping the additional heuristic is used:
+        the even "columns" in the signal constellation is complex conjugated.
         """
 
         for idx, (key, item) in enumerate(self.code_book.items()):
