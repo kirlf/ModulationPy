@@ -68,7 +68,7 @@ where **M** is the modulation order.
 
 M-PSK modem is available in ```class PSKModem``` with the following parameters:
 
-| Parametr | Possible values | Description |
+| Parameter | Possible values | Description |
 | ------------- |:-------------| :-----|
 | ``` M ```      | positive integer values power of 2 | Modulation order. Specify the number of points in the signal constellation as scalar value that is a positive integer power of two.|
 | ```phi``` | float values | Phase rotation. Specify the phase offset of the signal constellation, in radians, as a real scalar value. The default is 0.|
@@ -88,7 +88,7 @@ where <img src="https://tex.s2cms.ru/svg/%20%5Cphi%20" alt=" \phi " /> is the ph
 
 M-QAM modem is available in ```class QAMModem``` with the following parameters:
 
-| Parametr | Possible values | Description |
+| Parameter | Possible values | Description |
 | ------------- |:-------------| :-----|
 | ``` M ```      | positive integer values power of 2 | Modulation order. Specify the number of points in the signal constellation as scalar value that is a positive integer power of two.|
 | ```gray_map``` | ```True``` or ```False``` | Specifies mapping rule. If parametr is ```True``` the modem works with Gray mapping, else it works with Binary mapping. The default is ```True```.|
@@ -153,7 +153,7 @@ The method ```demodulate()``` has the two input arguments:
 
 - additive noise variance (```float```, default is 1.0).
 
-E.g., QPSK (binary input/otput):
+E.g., QPSK (binary input/output):
 
 ```python
 
@@ -182,7 +182,7 @@ print("Demodulated message:\n"+str(demodulated))
  
 ```
 
-E.g., QPSK (decimal input/otput):
+E.g., QPSK (decimal input/output):
 
 ``` python
 
@@ -286,7 +286,7 @@ The demodulation algorithm is developed according to following fomula in our pro
 
 <p align="center" style="text-align: center;"><img align="center" src="https://tex.s2cms.ru/svg/%20L(b)%20%3D%20-%5Cfrac%7B1%7D%7B%5Csigma%5E2%7D%20%5Cleft(%20%5Cmin_%7Bs%20%5Cepsilon%20S_0%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%20%20-%20%5Cmin_%7Bs%20%5Cepsilon%20S_1%7D%20%5Cleft(%20(x%20-%20s_x)%5E2%20%2B%20(y%20-%20s_y)%5E2%20%5Cright)%5Cright)%20%5Cqquad(8)" alt=" L(b) = -\frac{1}{\sigma^2} \left( \min_{s \epsilon S_0} \left( (x - s_x)^2 + (y - s_y)^2 \right)  - \min_{s \epsilon S_1} \left( (x - s_x)^2 + (y - s_y)^2 \right)\right) \qquad(7)" /></p>
 
-where <img src="https://tex.s2cms.ru/svg/%20x%20" alt=" x " /> is the In-phase coordinate of the received symbol, <img src="https://tex.s2cms.ru/svg/%20y%20" alt=" y " /> is the Quadrature coordinate of the received symbol, <img src="https://tex.s2cms.ru/svg/%20s_x%20" alt=" s_x " /> is the In-phase coordinate of ideal symbol or constellation point, <img src="https://tex.s2cms.ru/svg/%20s_y%20" alt=" s_y " /> is the Quadrature coordinate of ideal symbol or constellation point, <img src="https://tex.s2cms.ru/svg/%20S_0%20" alt=" S_0 " /> is the ideal symbols or constellation points with bit 0, at the given bit position, <img src="https://tex.s2cms.ru/svg/%20S_1%20" alt=" S_1 " /> is the ideal symbols or constellation points with bit 1, at the given bit position, <img src="https://tex.s2cms.ru/svg/%20b%20" alt=" b " /> is the transmitted bit (one of the K bits in an M-ary symbol, assuming all M symbols are equally probable, <img src="https://tex.s2cms.ru/svg/%20%5Csigma%5E2%20" alt=" \sigma^2 " /> is the noise variance of baseband signal. The decision was pre-verified in [this simulation](https://www.mathworks.com/matlabcentral/fileexchange/72392-exact-vs-approximate-llr-calculation?s_tid=prof_contriblnk). 
+where <img src="https://tex.s2cms.ru/svg/%20x%20" alt=" x " /> is the In-phase coordinate of the received symbol, <img src="https://tex.s2cms.ru/svg/%20y%20" alt=" y " /> is the Quadrature coordinate of the received symbol, <img src="https://tex.s2cms.ru/svg/%20s_x%20" alt=" s_x " /> is the In-phase coordinate of ideal symbol or constellation point, <img src="https://tex.s2cms.ru/svg/%20s_y%20" alt=" s_y " /> is the Quadrature coordinate of ideal symbol or constellation point, <img src="https://tex.s2cms.ru/svg/%20S_0%20" alt=" S_0 " /> is the ideal symbols or constellation points with bit 0, at the given bit position, <img src="https://tex.s2cms.ru/svg/%20S_1%20" alt=" S_1 " /> is the ideal symbols or constellation points with bit 1, at the given bit position, <img src="https://tex.s2cms.ru/svg/%20b%20" alt=" b " /> is the transmitted bit (one of the K bits in an M-ary symbol, assuming all M symbols are equally probable, <img src="https://tex.s2cms.ru/svg/%20%5Csigma%5E2%20" alt=" \sigma^2 " /> is the noise variance of baseband signal.
 
 Comparison information:
 
